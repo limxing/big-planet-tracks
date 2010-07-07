@@ -100,9 +100,6 @@ public class BigPlanet extends Activity {
 	public String identifier = null;
 	public static float density;
 
-	/*
-	 * Графический движок, реализующий карту
-	 */
 	private MapControl mapControl;
 
 	private static MarkerManager mm;
@@ -144,9 +141,6 @@ public class BigPlanet extends Activity {
 	private ProgressDialog myGPSDialog = null;
 	private Handler mainThreadHandler; // used by TrackStoringThread
 	
-	/**
-	 * Конструктор
-	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -179,7 +173,6 @@ public class BigPlanet extends Activity {
 		mainThreadHandler.removeMessages(0);
 
 		boolean hasSD = false;
-		// проверка на доступность sd
 		String status = Environment.getExternalStorageState();
 		if (!status.equals(Environment.MEDIA_MOUNTED)) {
 			SDCARD_AVAILABLE = false;
@@ -402,19 +395,19 @@ public class BigPlanet extends Activity {
 	}
 
 	private void initializeMap() {
-		// создание карты
+		// create maps
 		mm = new MarkerManager(getResources());
 		RawTile savedTile = Preferences.getTile();
 		//savedTile.s = 0;
 		configMapControl(savedTile);
-		// использовать ли сеть
+		// use the network or not
 		boolean useNet = Preferences.getUseNet();
 		mapControl.getPhysicalMap().getTileResolver().setUseNet(useNet);
-		// источник карты
+		// map source
 		int mapSourceId = Preferences.getSourceId();
 		mapControl.getPhysicalMap().getTileResolver().setMapSource(mapSourceId);
 		mapControl.getPhysicalMap().getDefaultTile().s = mapSourceId;
-		// величина отступа
+		// global offset
 		Point globalOffset = Preferences.getOffset();
 		//globalOffset.x = 0;
 		//globalOffset.y = -32;
@@ -503,9 +496,6 @@ public class BigPlanet extends Activity {
 		return true;
 	}
 
-	/**
-	 * Обрабатывает поворот телефона
-	 */
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
@@ -552,9 +542,6 @@ public class BigPlanet extends Activity {
 		finishGPSLocationListener(); // release the GPS resources
 	}
 	
-	/**
-	 * Запоминает текущий тайл и отступ при выгрузке приложения
-	 */
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -599,19 +586,21 @@ public class BigPlanet extends Activity {
 	}
 
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent ev) {
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_BACK:
-			/**
-			 * если текущий режим SELECT_MODE - изменить на ZOOM_MODE если
-			 * текущий режим ZOOM_MODE - делегировать обработку
-			 */
+			// if the current mode is SELECT_MODE - change to ZOOM_MODE
 			if (mapControl.getMapMode() == MapControl.SELECT_MODE) {
 				mapControl.setMapMode(MapControl.ZOOM_MODE);
 				return true;
+			} else if (isGPSTracking) {
+				Intent intentHome = new Intent("android.intent.action.MAIN");
+				intentHome.addCategory("android.intent.category.HOME");
+				startActivity(intentHome);
+				return true;
 			}
 		default:
-			return super.onKeyDown(keyCode, ev);
+			return super.onKeyDown(keyCode, event);
 		}
 	}
 	
@@ -735,7 +724,7 @@ public class BigPlanet extends Activity {
 	}
 
 	/**
-	 * Устанавливает размеры карты и др. свойства
+	 * Sets the size of maps and other properties
 	 */
 	private void configMapControl(RawTile tile) {
 		WindowManager wm = this.getWindowManager();
@@ -1170,7 +1159,7 @@ public class BigPlanet extends Activity {
 	}
 
 	/**
-	 * Отображает диалоги для кеширования карты в заданном радиусе
+	 * Displays a dialog for caching maps in a given radius
 	 */
 	private void showMapSaver() {
 		MapSaverUI mapSaverUI = new MapSaverUI(this, 
@@ -1181,7 +1170,7 @@ public class BigPlanet extends Activity {
 	}
 
 	/**
-	 * Создает радиокнопку с заданными параметрами
+	 * Creates a radio button with the given parameters
 	 * 
 	 * @param label
 	 * @param id
@@ -1195,7 +1184,7 @@ public class BigPlanet extends Activity {
 	}
 
 	/**
-	 * Создает диалог для выбора режима работы(оффлайн, онлайн)
+	 * Creates a dialog to select the mode (offline, online)
 	 */
 	private void selectNetworkMode() {
 		final Dialog networkModeDialog;
@@ -1248,7 +1237,7 @@ public class BigPlanet extends Activity {
 	}
 
 	/**
-	 * Создает диалог для выбора источника карт
+	 * Creates a dialog to select the map source
 	 */
 	private void selectMapSource() {
 		final Dialog mapSourceDialog;
