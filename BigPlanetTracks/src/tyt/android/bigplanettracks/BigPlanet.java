@@ -331,16 +331,6 @@ public class BigPlanet extends Activity {
 			MarkerManager.savedTrackG.clear();
 			Toast.makeText(context, R.string.track_enabled, Toast.LENGTH_SHORT).show();
 			setNotification(this, Notification_RecordTrack);
-			// finish all LocationListeners
-			if (locationManager != null) {
-				if (networkLocationListener != null)
-					locationManager.removeUpdates(networkLocationListener);
-				if (gpsLocationListener != null)
-					locationManager.removeUpdates(gpsLocationListener);
-				
-				networkLocationListener = null;
-				gpsLocationListener = null;
-			}
 			// start service
 			Intent intent = new Intent(this, MyLocationService.class);
 			this.startService(intent);
@@ -355,8 +345,6 @@ public class BigPlanet extends Activity {
 			// stop service
 			Intent intent = new Intent(this, MyLocationService.class);
 			this.stopService(intent);
-			if (isFollowMode)
-				startGPSLocationListener();
 		}
 		mm.saveMarkerGTrack();
 		isGPSTrackSaved = true;

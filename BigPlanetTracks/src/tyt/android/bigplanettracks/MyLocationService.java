@@ -33,7 +33,8 @@ public class MyLocationService extends Service implements LocationListener {
 	
 	@Override
 	public void onDestroy() {
-		BigPlanet.finishGPSLocationListener();
+		if (!BigPlanet.isFollowMode)
+			BigPlanet.finishGPSLocationListener();
 		Log.d("MyLocationService", "Service: onDestroy()");
 	}
 	
