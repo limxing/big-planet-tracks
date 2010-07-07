@@ -35,6 +35,7 @@ import tyt.android.bigplanettracks.tracks.MyTimeUtils;
 import tyt.android.bigplanettracks.tracks.TrackStoringThread;
 import tyt.android.bigplanettracks.tracks.TrackTabViewActivity;
 import tyt.android.bigplanettracks.tracks.db.TrackDBAdapter;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -107,12 +108,12 @@ public class BigPlanet extends Activity {
 	public static NotificationManager mNotificationManager;
 	public static int Notification_RecordTrack = 0;
 	
-	private static LocationManager locationManager;
-	private static Location currentLocation;
+	protected static LocationManager locationManager;
+	protected static Location currentLocation;
 	public static Location currentLocationBeforeRecording;
-	private static String locationProvider = null;
+	protected static String locationProvider = null;
 	
-	private static boolean inHome = false;
+	protected static boolean inHome = false;
 	public static boolean isFollowMode = true; // default value is auto follow
 	public static boolean isGPSTracking = false;  // default false
 	public static boolean isGPSTrackSaved = false;  // default false
@@ -140,6 +141,7 @@ public class BigPlanet extends Activity {
 	public static TrackDBAdapter DBAdapter;
 	private ProgressDialog myGPSDialog = null;
 	private Handler mainThreadHandler; // used by TrackStoringThread
+	protected static Handler locationHandler;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -150,8 +152,7 @@ public class BigPlanet extends Activity {
 		DBAdapter = new TrackDBAdapter();
 		mainThreadHandler = new Handler(){
 			public void handleMessage(Message msg) {
-				switch (msg.what)
-				{
+				switch (msg.what) {
 					case TrackStoringThread.SUCCESS:
 						Intent myIntent = new Intent();
 						myIntent.setClass(BigPlanet.this, TrackTabViewActivity.class);
@@ -171,6 +172,33 @@ public class BigPlanet extends Activity {
 				}
 			}};
 		mainThreadHandler.removeMessages(0);
+		
+		locationHandler = new Handler() {
+			public void handleMessage(Message msg) {
+				Location location = (Location) msg.obj;
+				switch (msg.what) {
+				case MethodStartGPSLocationListener:
+					startGPSLocationListener();
+					break;
+				case MethodGoToMyLocation:
+					goToMyLocation(location, PhysicMap.getZoomLevel());
+					break;
+				case MethodTrackMyLocation:
+					trackMyLocation(location, PhysicMap.getZoomLevel());
+					break;
+				case MethodAddMarker:
+					addMarker(location, PhysicMap.getZoomLevel());
+					break;
+				case MethodSetActivityTitle:
+					setActivityTitle(BigPlanet.this);
+					break;
+				case MethodUpdateScreen:
+					mapControl.updateScreen();
+					break;
+				}
+			}
+		};
+		locationHandler.removeMessages(0);
 
 		boolean hasSD = false;
 		String status = Environment.getExternalStorageState();
@@ -188,10 +216,10 @@ public class BigPlanet extends Activity {
 			hasSD = true;
 			searchIntentReceiver = new MySearchIntentReceiver();
 			registerReceiver(searchIntentReceiver, new IntentFilter(SearchAction));
-
+			
 			updateScreenIntentReceiver = new MyUpdateScreenIntentReceiver();
 			registerReceiver(updateScreenIntentReceiver, new IntentFilter(UpdateScreenAction));
-
+			
 			mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 			
@@ -303,7 +331,19 @@ public class BigPlanet extends Activity {
 			MarkerManager.savedTrackG.clear();
 			Toast.makeText(context, R.string.track_enabled, Toast.LENGTH_SHORT).show();
 			setNotification(this, Notification_RecordTrack);
-			startGPSLocationListener();
+			// finish all LocationListeners
+			if (locationManager != null) {
+				if (networkLocationListener != null)
+					locationManager.removeUpdates(networkLocationListener);
+				if (gpsLocationListener != null)
+					locationManager.removeUpdates(gpsLocationListener);
+				
+				networkLocationListener = null;
+				gpsLocationListener = null;
+			}
+			// start service
+			Intent intent = new Intent(this, MyLocationService.class);
+			this.startService(intent);
 		}
 		setActivityTitle((Activity) context);
 		mapControl.invalidate();
@@ -312,8 +352,11 @@ public class BigPlanet extends Activity {
 	private void disabledTrack(Context context) {
 		if (!isGPSTracking) {
 			clearNotification(Notification_RecordTrack);
-			if (!isFollowMode)
-				finishGPSLocationListener();
+			// stop service
+			Intent intent = new Intent(this, MyLocationService.class);
+			this.stopService(intent);
+			if (isFollowMode)
+				startGPSLocationListener();
 		}
 		mm.saveMarkerGTrack();
 		isGPSTrackSaved = true;
@@ -444,6 +487,13 @@ public class BigPlanet extends Activity {
 			d.saveGeoBookmark(newGeoBookmark);
 		}
 	}
+	
+	public static final int MethodStartGPSLocationListener = 0;
+	public static final int MethodGoToMyLocation = 1;
+	public static final int MethodTrackMyLocation = 2;
+	public static final int MethodAddMarker = 3;
+	public static final int MethodSetActivityTitle = 4;
+	public static final int MethodUpdateScreen = 5;
 	
 	public class MyUpdateScreenIntentReceiver extends BroadcastReceiver {
 		@Override
@@ -775,9 +825,7 @@ public class BigPlanet extends Activity {
 		startActivity(importTrackIntent);
 	}
 	
-	/* Begin of the GPS LocationListener code */
-	
-	private void startGPSLocationListener() {
+	protected void startGPSLocationListener() {
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		criteria.setAltitudeRequired(false);
@@ -805,7 +853,7 @@ public class BigPlanet extends Activity {
 
 		/* GPS_PROVIDER */
 		if (gpsLocationListener == null) {
-			gpsLocationListener = new MyLocationListener();
+			gpsLocationListener = new MyLocationService();
 			// LocationManager.GPS_PROVIDER = "gps"
 			provider = LocationManager.GPS_PROVIDER;
 			locationManager.requestLocationUpdates(provider, minTime, minDistance, gpsLocationListener);
@@ -814,7 +862,7 @@ public class BigPlanet extends Activity {
 
 		/* NETWORK_PROVIDER */
 		if (networkLocationListener == null) {
-			networkLocationListener = new MyLocationListener();
+			networkLocationListener = new MyLocationService();
 			// LocationManager.NETWORK_PROVIDER = "network"
 			provider = LocationManager.NETWORK_PROVIDER;
 			locationManager.requestLocationUpdates(provider, minTime, minDistance, networkLocationListener);
@@ -822,7 +870,7 @@ public class BigPlanet extends Activity {
 		}
 	}
 	
-	private static void finishGPSLocationListener() {
+	protected static void finishGPSLocationListener() {
 		if (!isGPSTracking) {
 			if (locationManager != null) {
 				if (networkLocationListener != null)
@@ -837,87 +885,10 @@ public class BigPlanet extends Activity {
 		}
 	}
 	
-	private static LocationListener gpsLocationListener;
-	private static LocationListener networkLocationListener;
-	private final long minTime = 2000; // ms
-	private final float minDistance = 5; // m
-	
-	class MyLocationListener implements LocationListener {
-		
-		@Override
-		public void onLocationChanged(Location location) {
-//			String longitude = String.valueOf(location.getLongitude());
-//			String latitude = String.valueOf(location.getLatitude());
-//			Log.i("Location", location.getProvider()+" onLocationChanged(): latitude="+latitude+", longitude="+longitude);
-			BigPlanet.currentLocation = location;
-			BigPlanet.inHome = true;
-			BigPlanet.isMapInCenter = false;
-			if (!isGPSTracking) {
-				if (isFollowMode) {
-					goToMyLocation(location, PhysicMap.getZoomLevel());
-				} 
-				// non-reach code because GPS is disabled
-//				else {
-//					addMarker(location, PhysicMap.getZoomLevel());
-//				}
-			} else { // isGPSTracking = true
-				if ((location.hasAccuracy() && location.getAccuracy()<30) || !location.hasAccuracy()) {
-					if (isFollowMode) {
-						trackMyLocation(location, PhysicMap.getZoomLevel());
-					} else {
-						addMarker(location, PhysicMap.getZoomLevel());
-						//mapControl.invalidate(); // not works if leaving activity and entering again
-						mapControl.updateScreen(); // works
-					}
-				}
-			}
-		}
-		
-		@Override
-		public void onProviderDisabled(String provider) {
-			Log.i("Location", provider + " is disabled.");
-			if (provider.equals("gps")) {
-				String networkProvider = LocationManager.NETWORK_PROVIDER;
-				locationManager.requestLocationUpdates(networkProvider, minTime, minDistance, networkLocationListener);
-				Log.i("Location", networkProvider +" requestLocationUpdates() "+ minTime +" "+ minDistance);
-			}
-		}
-		
-		@Override
-		public void onProviderEnabled(String provider) {
-			Log.i("Location", provider + " is enabled.");
-			if (provider.equals("gps")) {
-				locationManager.requestLocationUpdates(provider, minTime, minDistance, gpsLocationListener);
-			} else {
-				locationManager.requestLocationUpdates(provider, minTime, minDistance, networkLocationListener);
-			}
-			Log.i("Location", provider +" requestLocationUpdates() "+ minTime +" "+ minDistance);
-		}
-		
-		@Override
-		public void onStatusChanged(String provider, int status, Bundle extras) {
-			int numSatellites = extras.getInt("satellites", 0);
-			BigPlanet.locationProvider = provider+" "+status+" "+numSatellites;
-			if (status == 0) {
-				Log.i("Location", provider + " is OUT OF SERVICE");
-			} else if (status == 1) {
-				Log.i("Location", provider + " is TEMPORARILY UNAVAILABLE");
-				// invoke network's requestLocationUpdates() if not tracking
-				if (provider.equals("gps") && !isGPSTracking) {
-					String networkProvider = LocationManager.NETWORK_PROVIDER;
-					locationManager.requestLocationUpdates(networkProvider, minTime, minDistance, networkLocationListener);
-					Log.i("Location", networkProvider +" requestLocationUpdates() "+ minTime +" "+ minDistance);
-				}
-			} else {
-				Log.i("Location", provider + " is AVAILABLE");
-				// gpsLocationListener has higher priority than networkLocationListener
-				if (provider.equals("gps")) {
-					locationManager.removeUpdates(networkLocationListener);
-				}
-			}
-			setActivityTitle(BigPlanet.this);
-		}
-	}
+	protected static LocationListener gpsLocationListener;
+	protected static LocationListener networkLocationListener;
+	protected final static long minTime = 2000; // ms
+	protected final static float minDistance = 5; // m
 	
 	private void followMyLocation() {
 		if (!isFollowMode) {
@@ -927,7 +898,7 @@ public class BigPlanet extends Activity {
 		}
 	}
 
-	private void goToMyLocation(Location location, int zoom) {
+	protected void goToMyLocation(Location location, int zoom) {
 		double lat = location.getLatitude();
 		double lon = location.getLongitude();
 		goToMyLocation(lat, lon, zoom);
@@ -946,7 +917,7 @@ public class BigPlanet extends Activity {
 		mm.addMarker(place, zoom, MarkerManager.DrawMarkerOrTrack, MarkerManager.MY_LOCATION_MARKER);
 	}
 	
-	private void trackMyLocation(Location location, int zoom) {
+	protected void trackMyLocation(Location location, int zoom) {
 		double latFix = location.getLatitude() + myGPSOffset.y*Math.pow(10, -5);;
 		double lonFix = location.getLongitude() + myGPSOffset.x*Math.pow(10, -5);
 		tyt.android.bigplanettracks.maps.geoutils.Point p = GeoUtils.toTileXY(latFix, lonFix, zoom);
@@ -964,7 +935,7 @@ public class BigPlanet extends Activity {
 		mm.addMarker(place, zoom, MarkerManager.DrawMarkerOrTrack, MarkerManager.MY_LOCATION_MARKER);
 	}
 	
-	private void addMarker(Location location, int zoom) {
+	protected void addMarker(Location location, int zoom) {
 		double latFix = location.getLatitude() + myGPSOffset.y*Math.pow(10, -5);;
 		double lonFix = location.getLongitude() + myGPSOffset.x*Math.pow(10, -5);
 		Place place = new Place();
@@ -1527,7 +1498,7 @@ public class BigPlanet extends Activity {
 		return endLocation;
 	}
 	
-	private static void setActivityTitle(Activity activity) {
+	protected static void setActivityTitle(Activity activity) {
 		String strSQLiteName = Preferences.getSQLiteName();
 		// remove ".sqlitedb"
 		strSQLiteName = strSQLiteName.substring(0, strSQLiteName.lastIndexOf("."));
