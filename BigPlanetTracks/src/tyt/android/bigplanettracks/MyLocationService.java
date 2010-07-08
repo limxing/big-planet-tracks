@@ -1,6 +1,10 @@
 package tyt.android.bigplanettracks;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
@@ -13,26 +17,38 @@ import android.util.Log;
 
 public class MyLocationService extends Service implements LocationListener {
 	
+	public static int Notification_RecordTrack = 0;
+	private static NotificationManager mNotificationManager;
+	
 	private long minTime; // ms
 	private float minDistance; // m
 	private Handler locationHandler;
 	
 	public MyLocationService() {
-		this.minTime = BigPlanet.minTime;
-		this.minDistance = BigPlanet.minDistance;
-		this.locationHandler = BigPlanet.locationHandler;
+		minTime = BigPlanet.minTime;
+		minDistance = BigPlanet.minDistance;
+		locationHandler = BigPlanet.locationHandler;
 	}
 	
 	@Override
 	public void onCreate() {
 		Log.d("MyLocationService", "Service: onCreate()");
+		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		setNotification(this, Notification_RecordTrack);
 		//startGPSLocationListener();
-		Message m = locationHandler.obtainMessage(BigPlanet.MethodStartGPSLocationListener, 0, 0, null);
-		locationHandler.sendMessage(m);
+		if (locationHandler != null) {
+			Message m = locationHandler.obtainMessage(BigPlanet.MethodStartGPSLocationListener, 0, 0, null);
+			locationHandler.sendMessage(m);
+		} else {
+			// stop service
+			Intent intent = new Intent(this, MyLocationService.class);
+			this.stopService(intent);
+		}
 	}
 	
 	@Override
 	public void onDestroy() {
+		clearNotification(Notification_RecordTrack);
 		if (!BigPlanet.isFollowMode)
 			BigPlanet.finishGPSLocationListener();
 		Log.d("MyLocationService", "Service: onDestroy()");
@@ -127,4 +143,31 @@ public class MyLocationService extends Service implements LocationListener {
 		locationHandler.sendMessage(m);
 	}
 	
+	protected static void setNotification(Context context, int notificationId) {
+		int iconId = 0;
+		String contentTitle = null;
+		String contentText = null;
+		
+		if (notificationId == Notification_RecordTrack) {
+			iconId = R.drawable.globe;
+			contentTitle = context.getString(R.string.app_name);
+			contentText = context.getString(R.string.notify_recording);
+		}
+		
+		Intent notifyIntent = new Intent(context, BigPlanet.class);
+		PendingIntent pendingIntent = 
+			PendingIntent.getActivity(context, 0, notifyIntent, Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+
+		Notification notification = new Notification();
+		notification.flags = Notification.FLAG_NO_CLEAR;
+		notification.icon = iconId;
+		notification.defaults = Notification.DEFAULT_SOUND;
+		
+		notification.setLatestEventInfo(context, contentTitle, contentText, pendingIntent);
+		mNotificationManager.notify(notificationId, notification);
+	}
+	
+	protected static void clearNotification(int notificationId) {
+		mNotificationManager.cancel(notificationId);
+	}
 }

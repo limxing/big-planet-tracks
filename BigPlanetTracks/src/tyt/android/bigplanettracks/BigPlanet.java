@@ -39,9 +39,6 @@ import tyt.android.bigplanettracks.tracks.db.TrackDBAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -105,9 +102,6 @@ public class BigPlanet extends Activity {
 
 	private static MarkerManager mm;
 
-	public static NotificationManager mNotificationManager;
-	public static int Notification_RecordTrack = 0;
-	
 	protected static LocationManager locationManager;
 	protected static Location currentLocation;
 	public static Location currentLocationBeforeRecording;
@@ -220,7 +214,6 @@ public class BigPlanet extends Activity {
 			updateScreenIntentReceiver = new MyUpdateScreenIntentReceiver();
 			registerReceiver(updateScreenIntentReceiver, new IntentFilter(UpdateScreenAction));
 			
-			mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 			
 			SmoothZoomEngine.stop = false;
@@ -330,7 +323,6 @@ public class BigPlanet extends Activity {
 		if (isGPSTracking) {
 			MarkerManager.savedTrackG.clear();
 			Toast.makeText(context, R.string.track_enabled, Toast.LENGTH_SHORT).show();
-			setNotification(this, Notification_RecordTrack);
 			// start service
 			Intent intent = new Intent(this, MyLocationService.class);
 			this.startService(intent);
@@ -341,7 +333,6 @@ public class BigPlanet extends Activity {
 	
 	private void disabledTrack(Context context) {
 		if (!isGPSTracking) {
-			clearNotification(Notification_RecordTrack);
 			// stop service
 			Intent intent = new Intent(this, MyLocationService.class);
 			this.stopService(intent);
@@ -813,7 +804,7 @@ public class BigPlanet extends Activity {
 		startActivity(importTrackIntent);
 	}
 	
-	protected void startGPSLocationListener() {
+	private void startGPSLocationListener() {
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		criteria.setAltitudeRequired(false);
@@ -886,7 +877,7 @@ public class BigPlanet extends Activity {
 		}
 	}
 
-	protected void goToMyLocation(Location location, int zoom) {
+	private void goToMyLocation(Location location, int zoom) {
 		double lat = location.getLatitude();
 		double lon = location.getLongitude();
 		goToMyLocation(lat, lon, zoom);
@@ -905,7 +896,7 @@ public class BigPlanet extends Activity {
 		mm.addMarker(place, zoom, MarkerManager.DrawMarkerOrTrack, MarkerManager.MY_LOCATION_MARKER);
 	}
 	
-	protected void trackMyLocation(Location location, int zoom) {
+	private void trackMyLocation(Location location, int zoom) {
 		double latFix = location.getLatitude() + myGPSOffset.y*Math.pow(10, -5);;
 		double lonFix = location.getLongitude() + myGPSOffset.x*Math.pow(10, -5);
 		tyt.android.bigplanettracks.maps.geoutils.Point p = GeoUtils.toTileXY(latFix, lonFix, zoom);
@@ -923,7 +914,7 @@ public class BigPlanet extends Activity {
 		mm.addMarker(place, zoom, MarkerManager.DrawMarkerOrTrack, MarkerManager.MY_LOCATION_MARKER);
 	}
 	
-	protected void addMarker(Location location, int zoom) {
+	private void addMarker(Location location, int zoom) {
 		double latFix = location.getLatitude() + myGPSOffset.y*Math.pow(10, -5);;
 		double lonFix = location.getLongitude() + myGPSOffset.x*Math.pow(10, -5);
 		Place place = new Place();
@@ -1486,7 +1477,7 @@ public class BigPlanet extends Activity {
 		return endLocation;
 	}
 	
-	protected static void setActivityTitle(Activity activity) {
+	private static void setActivityTitle(Activity activity) {
 		String strSQLiteName = Preferences.getSQLiteName();
 		// remove ".sqlitedb"
 		strSQLiteName = strSQLiteName.substring(0, strSQLiteName.lastIndexOf("."));
@@ -1538,31 +1529,4 @@ public class BigPlanet extends Activity {
 		return scaledBitmap;
 	}
 	
-	private static void setNotification(Context context, int notificationId) {
-		int iconId = 0;
-		String contentTitle = null;
-		String contentText = null;
-		
-		if (notificationId == Notification_RecordTrack) {
-			iconId = R.drawable.globe;
-			contentTitle = context.getString(R.string.app_name);
-			contentText = context.getString(R.string.notify_recording);
-		}
-		
-		Intent notifyIntent = new Intent(context, BigPlanet.class);
-		PendingIntent pendingIntent = 
-			PendingIntent.getActivity(context, 0, notifyIntent, Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
-
-		Notification notification = new Notification();
-		notification.flags = Notification.FLAG_NO_CLEAR;
-		notification.icon = iconId;
-		notification.defaults = Notification.DEFAULT_SOUND;
-		
-		notification.setLatestEventInfo(context, contentTitle, contentText, pendingIntent);
-		mNotificationManager.notify(notificationId, notification);
-	}
-	
-	private static void clearNotification(int notificationId) {
-		mNotificationManager.cancel(notificationId);
-	}
 }
