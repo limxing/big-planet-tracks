@@ -1,5 +1,8 @@
 package tyt.android.bigplanettracks.maps;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import tyt.android.bigplanettracks.maps.loader.TileLoader;
 import tyt.android.bigplanettracks.maps.providers.MapStrategy;
 import tyt.android.bigplanettracks.maps.providers.MapStrategyFactory;
@@ -24,7 +27,11 @@ public class TileResolver {
 
 	private int loaded = 0;
 
+	public static ExecutorService mThreadPool;
+	
 	public TileResolver(final PhysicMap physicMap) {
+		if (mThreadPool == null)
+			mThreadPool = Executors.newFixedThreadPool(9);
 		this.physicMap = physicMap;
 		tileLoader = new TileLoader(
 		// обработчик загрузки тайла с сервера
@@ -37,7 +44,8 @@ public class TileResolver {
 						updateMap(tile, bmp);
 					}
 				});
-		new Thread(tileLoader, "TileLoader").start();
+//		new Thread(tileLoader, "TileLoader").start();
+		mThreadPool.execute(tileLoader);
 
 		// обработчик загрузки скалированых картинок
 		this.scaledHandler = new Handler() {

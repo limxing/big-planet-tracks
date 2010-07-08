@@ -14,7 +14,7 @@ import tyt.android.bigplanettracks.maps.providers.MapStrategy;
  */
 public class TileLoader implements Runnable {
 
-	private static final int MAX_THREADS = 3;
+	private static final int MAX_THREADS = 9;
 
 	private MapStrategy mapStrategy;
 
@@ -75,7 +75,7 @@ public class TileLoader implements Runnable {
 	public void run() {
 		while (true) {
 			try {
-				Thread.sleep(200);
+				Thread.sleep(100);
 				if (mapStrategy!=null && useNet && counter < MAX_THREADS && loadQueue.size() > 0) {
 					RawTile rt = getFromQueue();
 //					Log.i("LOADER", "Tile " + rt + " start loading");

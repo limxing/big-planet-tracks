@@ -16,6 +16,7 @@ import tyt.android.bigplanettracks.maps.Place;
 import tyt.android.bigplanettracks.maps.Preferences;
 import tyt.android.bigplanettracks.maps.RawTile;
 import tyt.android.bigplanettracks.maps.SHA1Hash;
+import tyt.android.bigplanettracks.maps.TileResolver;
 import tyt.android.bigplanettracks.maps.Utils;
 import tyt.android.bigplanettracks.maps.MarkerManager.Marker;
 import tyt.android.bigplanettracks.maps.db.DAO;
@@ -274,7 +275,7 @@ public class BigPlanet extends Activity {
 	
 	public static void disabledAutoFollow(Context context) {
 		if (isFollowMode) {
-			Toast.makeText(context, R.string.auto_follow_disabled, Toast.LENGTH_SHORT).show();
+//			Toast.makeText(context, R.string.auto_follow_disabled, Toast.LENGTH_SHORT).show();
 			mAutoFollowRelativeLayout.setVisibility(View.VISIBLE);
 			finishGPSLocationListener();
 			isFollowMode = false;
@@ -579,6 +580,8 @@ public class BigPlanet extends Activity {
 		SmoothZoomEngine.sze = null; // release the variable
 		SmoothZoomEngine.stop = true; // stop the thread
 		TileLoader.stop = true; // stop the thread
+		TileResolver.mThreadPool.shutdown();
+		TileResolver.mThreadPool = null;
 		mAutoFollowRelativeLayout = null;
 		if (searchIntentReceiver != null) {
 			unregisterReceiver(searchIntentReceiver);
@@ -826,7 +829,7 @@ public class BigPlanet extends Activity {
 				inHome = true;
 			}
 		} else { // gps and network are both disabled
-			Toast.makeText(this, R.string.msg_unable_to_get_current_location, 3000).show();
+			Toast.makeText(this, R.string.msg_unable_to_get_current_location, Toast.LENGTH_SHORT).show();
 			BigPlanet.locationProvider = null;
 		}
 
@@ -850,18 +853,22 @@ public class BigPlanet extends Activity {
 	}
 	
 	protected static void finishGPSLocationListener() {
-		if (!isGPSTracking) {
-			if (locationManager != null) {
-				if (networkLocationListener != null)
-					locationManager.removeUpdates(networkLocationListener);
-				if (gpsLocationListener != null)
-					locationManager.removeUpdates(gpsLocationListener);
-				
-				networkLocationListener = null;
-				gpsLocationListener = null;
-				BigPlanet.locationProvider = null;
+		new Thread("finishGPS") {
+			public void run() {
+				if (!isGPSTracking) {
+					if (locationManager != null) {
+						if (networkLocationListener != null)
+							locationManager.removeUpdates(networkLocationListener);
+						if (gpsLocationListener != null)
+							locationManager.removeUpdates(gpsLocationListener);
+						
+						networkLocationListener = null;
+						gpsLocationListener = null;
+						BigPlanet.locationProvider = null;
+					}
+				}
 			}
-		}
+		}.start();
 	}
 	
 	protected static LocationListener gpsLocationListener;

@@ -589,6 +589,7 @@ public class MapControl extends RelativeLayout {
 			}
 		}
 		
+		long touchTime = 0;
 
 		/**
 		 * Обработка касаний
@@ -598,10 +599,13 @@ public class MapControl extends RelativeLayout {
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				pmap.inMove = false;
-				pmap.getNextMovePoint().set((int) event.getX(),
-						(int) event.getY());
+				touchTime = System.currentTimeMillis();
+//				System.out.println("touchTime " + touchTime);
+				pmap.getNextMovePoint().set((int) event.getX(), (int) event.getY());
 				break;
 			case MotionEvent.ACTION_MOVE:
+				long now = System.currentTimeMillis();
+				long diff = now - touchTime;
 				if (pmap.scaleFactor == 1){
 //					System.out.println("inmove " + pmap.inMove);
 					pmap.inMove = true;
@@ -609,6 +613,15 @@ public class MapControl extends RelativeLayout {
 				}
 				// for Auto-Follow
 				BigPlanet.disabledAutoFollow(MapControl.this.context);
+				if (pmap.inMove && diff>50) {
+					touchTime = now;
+//					System.out.println("diff " + diff);
+					pmap.inMove = false;
+					pmap.moveCoordinates(event.getX(), event.getY());
+					pmap.quickHack();
+					pmap.loadFromCache();
+					updateScreen();
+				}
 				break;
 			case MotionEvent.ACTION_UP:
 				if (dcDetector.process(event)) { // double-tap
