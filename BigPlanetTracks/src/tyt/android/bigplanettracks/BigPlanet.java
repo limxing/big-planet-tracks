@@ -261,8 +261,6 @@ public class BigPlanet extends Activity {
 				showTrialDialog(R.string.this_is_demo_title, R.string.this_is_demo_message);
 			}
 			setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
-			
-			acquireWakeLock();
 		}
 		
 		if (hasSD) {
@@ -291,6 +289,7 @@ public class BigPlanet extends Activity {
 	private void releaseWakeLock() {
 		if (wakeLock != null && wakeLock.isHeld()) {
 			wakeLock.release();
+			wakeLock = null;
 		}
 	}
 	
@@ -579,6 +578,7 @@ public class BigPlanet extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		acquireWakeLock();
 		if (SDCARD_AVAILABLE) {
 			if (isFollowMode) {
 				isFollowMode = false;
@@ -590,13 +590,13 @@ public class BigPlanet extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
+		releaseWakeLock();
 		finishGPSLocationListener(); // release the GPS resources
 	}
 	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		releaseWakeLock();
 		DBAdapter.close();
 		DBAdapter = null;
 		SmoothZoomEngine.sze = null; // release the variable

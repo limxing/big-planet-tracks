@@ -104,6 +104,7 @@ public class MyLocationService extends Service implements LocationListener {
 	private void releaseWakeLock() {
 		if (wakeLock != null && wakeLock.isHeld()) {
 			wakeLock.release();
+			wakeLock = null;
 		}
 	}
 	
