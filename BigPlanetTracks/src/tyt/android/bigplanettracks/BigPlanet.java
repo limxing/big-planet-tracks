@@ -63,6 +63,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.Display;
@@ -103,6 +105,7 @@ public class BigPlanet extends Activity {
 
 	private static MarkerManager mm;
 
+	private WakeLock wakeLock;
 	protected static LocationManager locationManager;
 	protected static Location currentLocation;
 	public static Location currentLocationBeforeRecording;
@@ -258,6 +261,8 @@ public class BigPlanet extends Activity {
 				showTrialDialog(R.string.this_is_demo_title, R.string.this_is_demo_message);
 			}
 			setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
+			
+			acquireWakeLock();
 		}
 		
 		if (hasSD) {
@@ -270,6 +275,22 @@ public class BigPlanet extends Activity {
 					System.out.println(tz+" ("+MyTimeUtils.getLocalTimeString(System.currentTimeMillis())+")");
 				}
 			}.start();
+		}
+	}
+	
+	private void acquireWakeLock() {
+		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		if (wakeLock == null) {
+			wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "wakeLock");
+			if (!wakeLock.isHeld()) {
+				wakeLock.acquire();
+			}
+		}
+	}
+	
+	private void releaseWakeLock() {
+		if (wakeLock != null && wakeLock.isHeld()) {
+			wakeLock.release();
 		}
 	}
 	
@@ -575,6 +596,7 @@ public class BigPlanet extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		releaseWakeLock();
 		DBAdapter.close();
 		DBAdapter = null;
 		SmoothZoomEngine.sze = null; // release the variable

@@ -13,12 +13,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 public class MyLocationService extends Service implements LocationListener {
 	
-	public static int Notification_RecordTrack = 0;
-	private static NotificationManager mNotificationManager;
+	private NotificationManager mNotificationManager;
+	private WakeLock wakeLock;
 	
 	private long minTime; // ms
 	private float minDistance; // m
@@ -32,9 +34,11 @@ public class MyLocationService extends Service implements LocationListener {
 	
 	@Override
 	public void onCreate() {
+		super.onCreate();
 		Log.d("MyLocationService", "Service: onCreate()");
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		setNotification(this, Notification_RecordTrack);
+		showNotification();
+		acquireWakeLock();
 		//startGPSLocationListener();
 		if (locationHandler != null) {
 			Message m = locationHandler.obtainMessage(BigPlanet.MethodStartGPSLocationListener, 0, 0, null);
@@ -48,15 +52,59 @@ public class MyLocationService extends Service implements LocationListener {
 	
 	@Override
 	public void onDestroy() {
-		clearNotification(Notification_RecordTrack);
+		super.onDestroy();
+		Log.d("MyLocationService", "Service: onDestroy()");
+		clearNotification();
+		releaseWakeLock();
 		if (!BigPlanet.isFollowMode)
 			BigPlanet.finishGPSLocationListener();
-		Log.d("MyLocationService", "Service: onDestroy()");
 	}
 	
 	@Override
 	public IBinder onBind(Intent i) {
 		return null;
+	}
+	
+	private void showNotification() {
+		int iconId = 0;
+		String contentTitle = null;
+		String contentText = null;
+		
+		iconId = R.drawable.globe;
+		contentTitle = getString(R.string.app_name);
+		contentText = getString(R.string.notify_recording);
+		
+		Intent notifyIntent = new Intent(this, BigPlanet.class);
+		PendingIntent pendingIntent = PendingIntent.getActivity(
+				this, 0, notifyIntent, Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+
+		Notification notification = new Notification();
+		notification.flags = Notification.FLAG_NO_CLEAR;
+		notification.icon = iconId;
+		notification.defaults = Notification.DEFAULT_SOUND;
+		
+		notification.setLatestEventInfo(this, contentTitle, contentText, pendingIntent);
+		mNotificationManager.notify(1, notification);
+	}
+	
+	private void clearNotification() {
+		mNotificationManager.cancel(1);
+	}
+	
+	private void acquireWakeLock() {
+		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		if (wakeLock == null) {
+			wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wakeLock");
+			if (!wakeLock.isHeld()) {
+				wakeLock.acquire();
+			}
+		}
+	}
+	
+	private void releaseWakeLock() {
+		if (wakeLock != null && wakeLock.isHeld()) {
+			wakeLock.release();
+		}
 	}
 	
 	@Override
@@ -143,31 +191,4 @@ public class MyLocationService extends Service implements LocationListener {
 		locationHandler.sendMessage(m);
 	}
 	
-	protected static void setNotification(Context context, int notificationId) {
-		int iconId = 0;
-		String contentTitle = null;
-		String contentText = null;
-		
-		if (notificationId == Notification_RecordTrack) {
-			iconId = R.drawable.globe;
-			contentTitle = context.getString(R.string.app_name);
-			contentText = context.getString(R.string.notify_recording);
-		}
-		
-		Intent notifyIntent = new Intent(context, BigPlanet.class);
-		PendingIntent pendingIntent = 
-			PendingIntent.getActivity(context, 0, notifyIntent, Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
-
-		Notification notification = new Notification();
-		notification.flags = Notification.FLAG_NO_CLEAR;
-		notification.icon = iconId;
-		notification.defaults = Notification.DEFAULT_SOUND;
-		
-		notification.setLatestEventInfo(context, contentTitle, contentText, pendingIntent);
-		mNotificationManager.notify(notificationId, notification);
-	}
-	
-	protected static void clearNotification(int notificationId) {
-		mNotificationManager.cancel(notificationId);
-	}
 }
