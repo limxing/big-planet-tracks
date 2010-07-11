@@ -2,6 +2,8 @@ package tyt.android.bigplanettracks.maps.storage;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import tyt.android.bigplanettracks.maps.Handler;
 import tyt.android.bigplanettracks.maps.RawTile;
@@ -21,6 +23,8 @@ public class LocalStorageWrapper {
 
 	private static ILocalStorage localStorage = SQLLocalStorage.getInstance();
 
+	private static ExecutorService mThreadPool = Executors.newFixedThreadPool(5);
+	
 	public static void switchLocalStorage() {
 		SQLLocalStorage.resetLocalStorage();
 		localStorage = SQLLocalStorage.getInstance();
@@ -55,13 +59,11 @@ public class LocalStorageWrapper {
 	}
 
 	public static void get(final RawTile tile, final Handler handler) {
-		new Thread() {
-
+		mThreadPool.execute(new Runnable() {
 			public void run() {
 				handler.handle(tile, get(tile), false);
 			}
-
-		}.start();
+		});
 	}
 
 }

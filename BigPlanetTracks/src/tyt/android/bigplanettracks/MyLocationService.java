@@ -39,11 +39,7 @@ public class MyLocationService extends Service implements LocationListener {
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		showNotification();
 		acquireWakeLock();
-		//startGPSLocationListener();
-		if (locationHandler != null) {
-			Message m = locationHandler.obtainMessage(BigPlanet.MethodStartGPSLocationListener, 0, 0, null);
-			locationHandler.sendMessage(m);
-		} else {
+		if (locationHandler == null) {
 			// stop service
 			Intent intent = new Intent(this, MyLocationService.class);
 			this.stopService(intent);
@@ -56,8 +52,6 @@ public class MyLocationService extends Service implements LocationListener {
 		Log.d("MyLocationService", "Service: onDestroy()");
 		clearNotification();
 		releaseWakeLock();
-		if (!BigPlanet.isFollowMode)
-			BigPlanet.finishGPSLocationListener();
 	}
 	
 	@Override

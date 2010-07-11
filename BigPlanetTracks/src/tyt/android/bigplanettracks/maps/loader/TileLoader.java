@@ -1,6 +1,8 @@
 package tyt.android.bigplanettracks.maps.loader;
 
 import java.util.Stack;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import tyt.android.bigplanettracks.maps.Handler;
 import tyt.android.bigplanettracks.maps.RawTile;
@@ -14,7 +16,7 @@ import tyt.android.bigplanettracks.maps.providers.MapStrategy;
  */
 public class TileLoader implements Runnable {
 
-	private static final int MAX_THREADS = 9;
+	private static final int MAX_THREADS = 3;
 
 	private MapStrategy mapStrategy;
 
@@ -28,6 +30,8 @@ public class TileLoader implements Runnable {
 
 	private Stack<RawTile> loadQueue = new Stack<RawTile>();
 
+	private static ExecutorService mThreadPool = Executors.newFixedThreadPool(MAX_THREADS);
+	
 	/**
 	 * Конструктор
 	 * 
@@ -36,6 +40,7 @@ public class TileLoader implements Runnable {
 	 */
 	public TileLoader(Handler handler) {
 		this.handler = handler;
+		TileLoader.stop = false;
 	}
 
 	public void setMapStrategy(MapStrategy mapStrategy) {
@@ -71,7 +76,7 @@ public class TileLoader implements Runnable {
 		}
 		counter--;
 	}
-
+	
 	public void run() {
 		while (true) {
 			try {
@@ -80,8 +85,8 @@ public class TileLoader implements Runnable {
 					RawTile rt = getFromQueue();
 //					Log.i("LOADER", "Tile " + rt + " start loading");
 					if (null != rt) {
-						new ThreadLoader(rt).start();
 						counter++;
+						mThreadPool.execute(new ThreadLoader(rt));
 					}
 				}
 				if (stop) { // stop this thread after exiting the application

@@ -10,7 +10,7 @@ import tyt.android.bigplanettracks.maps.Log;
 import tyt.android.bigplanettracks.maps.RawTile;
 import tyt.android.bigplanettracks.maps.providers.MapStrategy;
 
-public abstract class BaseLoader extends Thread {
+public abstract class BaseLoader extends Thread  {
 
 	public static final int CONNECTION_TIMEOUT = 10000;
 
@@ -19,13 +19,13 @@ public abstract class BaseLoader extends Thread {
 	private boolean stop = false;
 
 	public BaseLoader(RawTile tile) {
-		super();
+		super("HTTP");
 		this.tiles = new RawTile[1];
 		this.tiles[0] = tile;
 	}
 
 	public BaseLoader(RawTile[] tiles) {
-		super();
+		super("HTTP");
 		this.tiles = tiles;
 	}
 

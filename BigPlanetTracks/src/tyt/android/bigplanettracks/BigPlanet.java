@@ -16,7 +16,6 @@ import tyt.android.bigplanettracks.maps.Place;
 import tyt.android.bigplanettracks.maps.Preferences;
 import tyt.android.bigplanettracks.maps.RawTile;
 import tyt.android.bigplanettracks.maps.SHA1Hash;
-import tyt.android.bigplanettracks.maps.TileResolver;
 import tyt.android.bigplanettracks.maps.Utils;
 import tyt.android.bigplanettracks.maps.MarkerManager.Marker;
 import tyt.android.bigplanettracks.maps.db.DAO;
@@ -221,7 +220,6 @@ public class BigPlanet extends Activity {
 			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 			
 			SmoothZoomEngine.stop = false;
-			TileLoader.stop = false;
 			mAutoFollowRelativeLayout = getAutoFollowRelativeLayout();
 			mAutoFollowRelativeLayout.setVisibility(View.INVISIBLE);
 			mTrackRelativeLayout = getTrackRelativeLayout();
@@ -295,9 +293,8 @@ public class BigPlanet extends Activity {
 	
 	public static void disabledAutoFollow(Context context) {
 		if (isFollowMode) {
-//			Toast.makeText(context, R.string.auto_follow_disabled, Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, R.string.auto_follow_disabled, Toast.LENGTH_SHORT).show();
 			mAutoFollowRelativeLayout.setVisibility(View.VISIBLE);
-			finishGPSLocationListener();
 			isFollowMode = false;
 		}
 		setActivityTitle((Activity) context);
@@ -307,7 +304,6 @@ public class BigPlanet extends Activity {
 		if (!isFollowMode) {
 			Toast.makeText(context, R.string.auto_follow_enabled, Toast.LENGTH_SHORT).show();
 			mAutoFollowRelativeLayout.setVisibility(View.INVISIBLE);
-			startGPSLocationListener();
 			if (currentLocation != null)
 				goToMyLocation(currentLocation, PhysicMap.getZoomLevel());
 			isFollowMode = true;
@@ -579,6 +575,7 @@ public class BigPlanet extends Activity {
 	protected void onResume() {
 		super.onResume();
 		acquireWakeLock();
+		startGPSLocationListener();
 		if (SDCARD_AVAILABLE) {
 			if (isFollowMode) {
 				isFollowMode = false;
@@ -602,8 +599,6 @@ public class BigPlanet extends Activity {
 		SmoothZoomEngine.sze = null; // release the variable
 		SmoothZoomEngine.stop = true; // stop the thread
 		TileLoader.stop = true; // stop the thread
-		TileResolver.mThreadPool.shutdown();
-		TileResolver.mThreadPool = null;
 		mAutoFollowRelativeLayout = null;
 		if (searchIntentReceiver != null) {
 			unregisterReceiver(searchIntentReceiver);

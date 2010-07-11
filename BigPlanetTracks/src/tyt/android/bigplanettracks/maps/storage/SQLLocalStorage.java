@@ -6,7 +6,6 @@ import java.io.ByteArrayInputStream;
 import tyt.android.bigplanettracks.maps.Preferences;
 import tyt.android.bigplanettracks.maps.RawTile;
 
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
