@@ -30,8 +30,9 @@ public class SQLLocalStorage implements ILocalStorage {
 
 	private static String INDEX_DDL = "CREATE INDEX IF NOT EXISTS IND on tiles (x,y,z,s)";
 
-	public static String MAP_PATH = "/sdcard/RMaps/maps/";
-	public static String TRACK_PATH = "/sdcard/BigPlanetTracks/";
+	public static String SD_PATH = "/sdcard/";
+	public static String MAP_PATH = SD_PATH + "RMaps/maps/";
+	public static String TRACK_PATH = SD_PATH + "BigPlanetTracks/";
 	public static String TRACK_IMPORT_PATH = TRACK_PATH + "import/";
 	public static String TRACK_EXPORT_PATH = TRACK_PATH + "export/";
 	
@@ -55,6 +56,13 @@ public class SQLLocalStorage implements ILocalStorage {
 	public static void resetLocalStorage() {
 		db.close();
 		localStorage = null;
+	}
+	
+	public static void updateSDPaths() {
+		MAP_PATH = SD_PATH + "RMaps/maps/";
+		TRACK_PATH = SD_PATH + "BigPlanetTracks/";
+		TRACK_IMPORT_PATH = TRACK_PATH + "import/";
+		TRACK_EXPORT_PATH = TRACK_PATH + "export/";
 	}
 
 	/**

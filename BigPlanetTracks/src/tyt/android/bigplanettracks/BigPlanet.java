@@ -195,7 +195,6 @@ public class BigPlanet extends Activity {
 				}
 			}
 		};
-		locationHandler.removeMessages(0);
 
 		boolean hasSD = false;
 		String status = Environment.getExternalStorageState();
@@ -211,6 +210,9 @@ public class BigPlanet extends Activity {
 							}).show();
 		} else {
 			hasSD = true;
+			SQLLocalStorage.SD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator;
+			SQLLocalStorage.updateSDPaths();
+			
 			searchIntentReceiver = new MySearchIntentReceiver();
 			registerReceiver(searchIntentReceiver, new IntentFilter(SearchAction));
 			
