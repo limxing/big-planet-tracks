@@ -152,28 +152,32 @@ public class IconAdapter extends BaseAdapter {
 	
 	public static String generateTimeString(long millisecond, Context context) {
 		String timeString = MyTimeUtils.getTimeString(millisecond);
-//		String hr = context.getString(R.string.hr_unit);
-//		String min = context.getString(R.string.min_unit);
-//		String sec = context.getString(R.string.sec_unit);
 		return timeString;
 	}
 	
 	public static String generateDistanceString(float distance, Context context) {
-		String distanceString ="";
+		String distanceString = "";
 		NumberFormat formatter = new DecimalFormat("#.##");
 		if(distance>1000) {
-			distanceString = formatter.format(distance/1000) +" "+ context.getString(R.string.kilometer_unit);
+			distanceString = formatter.format(distance/1000) +" "+ context.getString(R.string.kilometer);
 		} else {
-			distanceString = formatter.format(distance) +" "+ context.getString(R.string.meter_unit);
+			distanceString = formatter.format(distance) +" "+ context.getString(R.string.meter);
 		}
 		return distanceString;
 	}
 	
 	public static String generateSpeedString(double speed,Context context) {
-		String speedString ="";
+		String speedString = "";
 		NumberFormat formatter = new DecimalFormat("#.##");
 		speedString = formatter.format(speed) +" "+ context.getString(R.string.speed_unit);
 		return speedString;
+	}
+	
+	public static String generateAltitudeString(double altitude, Context context) {
+		String altitudeString = "";
+		NumberFormat formatter = new DecimalFormat("#.##");
+		altitudeString = formatter.format(altitude) +" "+ context.getString(R.string.meter);
+		return altitudeString;
 	}
 	
 	private String generateWaypointString(long number) {

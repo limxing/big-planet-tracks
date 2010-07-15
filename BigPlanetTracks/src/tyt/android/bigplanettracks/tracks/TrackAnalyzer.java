@@ -9,8 +9,8 @@ import android.location.Location;
 import android.util.Log;
 
 /**
- * @author TYTung, taiyuchen
- * @version 0.1
+ * @author TYTung
+ * @version 0.2
  */
 public class TrackAnalyzer {
 	
@@ -22,12 +22,14 @@ public class TrackAnalyzer {
 	private ArrayList<Location> locationList;
 	private	String trackSource;
 	
+	private ArrayList<Double> altitudeList;
 	private ArrayList<Float> speedList;
 	private long totalTime;
 	private float totalDistance;
 	private float averageSpeed;
 	private float maximumSpeed;
 	private int trackPoints;
+
 	
 	public TrackAnalyzer(String trackName, String trackDescription, String startGMTTime, 
 			ArrayList<Location> locationList, String trackSource) {
@@ -37,6 +39,7 @@ public class TrackAnalyzer {
 		this.locationList = locationList;
 		this.trackSource = trackSource;
 		
+		altitudeList = new ArrayList<Double>();
 		speedList = new ArrayList<Float>();
 		totalTime = 0;
 		totalDistance = 0f;
@@ -50,26 +53,30 @@ public class TrackAnalyzer {
 		this(trackName, trackDescription, startGMTTime, locationList, null);
 	}
 	
-	private void analyze() {
-		Log.i("Message", "Perform TrackAnalyzer");
+	public void analyze(boolean hasLog) {
+		if (hasLog)
+			Log.i("Message", "Perform TrackAnalyzer");
 		if (locationList.size() > 1) {
 			computeTotalTime();
 			computeTotalDistance();
 			computeAverageSpeed();
 			computeMaximumSpeed();
+			Collections.sort(altitudeList);
 		}
-		Log.i("Message", "totalTime="+MyTimeUtils.getTimeString(totalTime));
-		Log.i("Message", "totalDistance="+totalDistance+"m");
-		Log.i("Message", "averageSpeed="+averageSpeed+"km/hr");
-		Log.i("Message", "maximumSpeed="+maximumSpeed+"km/hr");
-		Log.i("Message", "trackPoints="+trackPoints);
+		if (hasLog) {
+			Log.i("Message", "totalTime="+MyTimeUtils.getTimeString(totalTime));
+			Log.i("Message", "totalDistance="+totalDistance+"m");
+			Log.i("Message", "averageSpeed="+averageSpeed+"km/hr");
+			Log.i("Message", "maximumSpeed="+maximumSpeed+"km/hr");
+			Log.i("Message", "trackPoints="+trackPoints);
+		}
 	}
 	
 	public void analyzeAndUpdate(long trackID) {
 		Log.i("Message", "trackName="+trackName);
 		Log.i("Message", "trackDescription="+trackDescription);
 		Log.i("Message", "trackStartGMTTime="+startGMTTime);
-		analyze();
+		analyze(true);
 		BigPlanet.DBAdapter.open();
 		BigPlanet.DBAdapter.updateTrack(trackID, totalTime, totalDistance, 
 				averageSpeed, maximumSpeed, trackPoints, measureVersion);
@@ -85,7 +92,7 @@ public class TrackAnalyzer {
 		long trackID = BigPlanet.DBAdapter.insertTrack(trackName, trackDescription, startGMTTime, locationList, trackSource);
 		Log.i("Message", "insertTrack() finished");
 		
-		analyze();
+		analyze(true);
 		
 		BigPlanet.DBAdapter.updateTrack(trackID, totalTime, totalDistance, 
 				averageSpeed, maximumSpeed, trackPoints, measureVersion);
@@ -105,8 +112,9 @@ public class TrackAnalyzer {
 		totalDistance = 0;
 		float speed;
 		for (int i=0; i<locationList.size(); i++) {
+			Location location = locationList.get(i);
+			altitudeList.add(location.getAltitude());
 			if (i >= 1) {
-				Location location = locationList.get(i);
 				Location previous_location = locationList.get(i-1);
 				float distance = location.distanceTo(previous_location);
 //				if (distance <= 10) {
@@ -173,6 +181,20 @@ public class TrackAnalyzer {
 	
 	public int getTrackPoints() {
 		return locationList.size();
+	}
+	
+	public double getMaxAltitude() {
+		double altitude = 0;
+		if (altitudeList.size() > 0)
+			altitude = altitudeList.get(altitudeList.size()-1);
+		return altitude;
+	}
+	
+	public double getMinAltitude() {
+		double altitude = 0;
+		if (altitudeList.size() > 0)
+			altitude = altitudeList.get(0);
+		return altitude;
 	}
 	
 }

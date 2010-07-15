@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="tyt.android.bigplanettracks"
-	android:versionCode="124"
-	android:versionName="2.0a">
+	android:versionCode="125"
+	android:versionName="2.1">
 
 	<application android:name="tyt.android.bigplanettracks.maps.BigPlanetApp" android:debuggable="false"
 		android:icon="@drawable/globe" android:label="@string/app_name">
 		
-		<activity android:configChanges="keyboardHidden|orientation" 
-			android:name=".BigPlanet" android:launchMode="singleTop">
+		<activity android:name=".BigPlanetTracks" android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
-			<meta-data android:name="android.app.default_searchable" android:value=".FindPlace" />
 		</activity>
 
 		<activity android:configChanges="keyboardHidden|orientation"
-			android:name=".AllGeoBookmarks">
+			android:name=".BigPlanet" android:launchMode="singleTop">
+			<meta-data android:name="android.app.default_searchable" android:value=".FindPlace" />
 		</activity>
+		
+		<activity android:configChanges="keyboardHidden|orientation" 
+			android:name=".StatsActivity" android:launchMode="singleTop"/>
+		
+		<activity android:configChanges="keyboardHidden|orientation"
+			android:name=".AllGeoBookmarks"/>
 		
 		<activity android:configChanges="keyboardHidden|orientation" android:theme="@android:style/Theme.Dialog"
 			android:name=".FindPlace" android:launchMode="singleTop">
@@ -29,9 +34,7 @@
 			<meta-data android:name="android.app.searchable" android:resource="@xml/searchable" />
 		</activity>
 		
-		<activity android:name="tyt.android.bigplanettracks.tracks.TrackTabViewActivity"
-			android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar">
-		</activity>
+		<activity android:name="tyt.android.bigplanettracks.tracks.TrackTabViewActivity"/>
 		
 		<service android:name=".MyLocationService" android:enabled="true"/>
 	

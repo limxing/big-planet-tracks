@@ -11,13 +11,13 @@ import java.util.TimeZone;
 
 import tyt.android.bigplanettracks.maps.BigPlanetApp;
 import tyt.android.bigplanettracks.maps.MarkerManager;
+import tyt.android.bigplanettracks.maps.MarkerManager.Marker;
 import tyt.android.bigplanettracks.maps.PhysicMap;
 import tyt.android.bigplanettracks.maps.Place;
 import tyt.android.bigplanettracks.maps.Preferences;
 import tyt.android.bigplanettracks.maps.RawTile;
 import tyt.android.bigplanettracks.maps.SHA1Hash;
 import tyt.android.bigplanettracks.maps.Utils;
-import tyt.android.bigplanettracks.maps.MarkerManager.Marker;
 import tyt.android.bigplanettracks.maps.db.DAO;
 import tyt.android.bigplanettracks.maps.db.GeoBookmark;
 import tyt.android.bigplanettracks.maps.geoutils.GeoUtils;
@@ -73,23 +73,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.RadioGroup.OnCheckedChangeListener;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class BigPlanet extends Activity {
 
@@ -108,6 +108,7 @@ public class BigPlanet extends Activity {
 	protected static LocationManager locationManager;
 	protected static Location currentLocation;
 	public static Location currentLocationBeforeRecording;
+	public static long recordingTime;
 	protected static String locationProvider = null;
 	
 	protected static boolean inHome = false;
@@ -196,7 +197,6 @@ public class BigPlanet extends Activity {
 			}
 		};
 
-		boolean hasSD = false;
 		String status = Environment.getExternalStorageState();
 		if (!status.equals(Environment.MEDIA_MOUNTED)) {
 			SDCARD_AVAILABLE = false;
@@ -209,7 +209,7 @@ public class BigPlanet extends Activity {
 								}
 							}).show();
 		} else {
-			hasSD = true;
+			SDCARD_AVAILABLE = true;
 			SQLLocalStorage.SD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator;
 			SQLLocalStorage.updateSDPaths();
 			
@@ -261,9 +261,7 @@ public class BigPlanet extends Activity {
 				showTrialDialog(R.string.this_is_demo_title, R.string.this_is_demo_message);
 			}
 			setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
-		}
-		
-		if (hasSD) {
+
 			myGPSOffset = Preferences.getGPSOffset();
 			setActivityTitle(BigPlanet.this);
 			new Thread("LoadDefaultTimeZone") {
@@ -304,7 +302,8 @@ public class BigPlanet extends Activity {
 	
 	public void enabledAutoFollow(Context context) {
 		if (!isFollowMode) {
-			Toast.makeText(context, R.string.auto_follow_enabled, Toast.LENGTH_SHORT).show();
+			if (isGPSTracking == false)
+				Toast.makeText(context, R.string.auto_follow_enabled, Toast.LENGTH_SHORT).show();
 			mAutoFollowRelativeLayout.setVisibility(View.INVISIBLE);
 			if (currentLocation != null)
 				goToMyLocation(currentLocation, PhysicMap.getZoomLevel());
@@ -374,7 +373,7 @@ public class BigPlanet extends Activity {
 		ivRecordTrack.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				saveTrack();
+				toggleTrackButton();
 			}
 		});
 		
@@ -389,12 +388,13 @@ public class BigPlanet extends Activity {
 		return relativeLayout;
 	}
 
-	private void saveTrack() {
+	private void toggleTrackButton() {
 		if (!isGPSTracking) {
 			isGPSTracking = true;
 			ivRecordTrack.setImageResource(R.drawable.btn_record_stop);
 			enabledTrack(BigPlanet.this);
 			currentLocationBeforeRecording = currentLocation;
+			recordingTime = System.currentTimeMillis();
 			// log track by using gpsLocationListener
 			if (locationManager != null) {
 				if (networkLocationListener != null) {
@@ -1512,7 +1512,7 @@ public class BigPlanet extends Activity {
 		if (provider != null) {
 			provider = " @ " + provider;
 		} else {
-			provider = "";
+			provider = " @ network 1 0";
 		}
 		int zoomLevel = PhysicMap.getZoomLevel();
 		if (scaledBitmapZoomLevel != zoomLevel) {
@@ -1554,5 +1554,5 @@ public class BigPlanet extends Activity {
 		}
 		return scaledBitmap;
 	}
-	
+
 }

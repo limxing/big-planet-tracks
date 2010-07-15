@@ -1,6 +1,7 @@
 package tyt.android.bigplanettracks.tracks;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import tyt.android.bigplanettracks.BigPlanet;
@@ -82,6 +83,8 @@ public class TrackTabViewActivity extends TabActivity{
 	private TextView track_time_text;
 	private TextView track_speed_text;
 	private TextView track_maxSpeed_text;
+	private TextView track_maxAltitude_text;
+	private TextView track_minAltitude_text;
 	private TextView track_pointNumber_text;
 	private TextView track_description_text;
 	private TextView track_start_time_text;
@@ -256,6 +259,8 @@ public class TrackTabViewActivity extends TabActivity{
 				track_time_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_time_content_view);
 				track_speed_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_speed_content_view);
 				track_maxSpeed_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_maxSpeed_content_view);
+				track_minAltitude_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_min_elevation_content_view);
+				track_maxAltitude_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_max_elevation_content_view);
 				track_pointNumber_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_waypoints_content_view);
 				track_start_time_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_start_time_content_view);
 				track_description_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_description_content_view);
@@ -311,21 +316,7 @@ public class TrackTabViewActivity extends TabActivity{
 	private void calculateWaypointsFromDB() {
 		getNameDescriptionFromDB();
 		
-		Cursor myCursor = BigPlanet.DBAdapter.getTrackPoints(trackID);
-		ArrayList<Location> locationList = new ArrayList<Location>();
-		for (int i=0; i < myCursor.getCount(); i++) {
-			double latitude = myCursor.getDouble(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_latitude));
-			double longitude = myCursor.getDouble(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_longitude)); 
-			String strGMTTime = myCursor.getString(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_time));
-			
-			Location location = new Location("");
-			location.setLatitude(latitude);
-			location.setLongitude(longitude);
-			location.setTime(MyTimeUtils.getGMTTime(strGMTTime));
-			locationList.add(location);
-			myCursor.moveToNext();
-		}
-		myCursor.close();
+		ArrayList<Location> locationList = getLocationListFromDB(trackID);
 		
 		TrackAnalyzer analyzer = new TrackAnalyzer(trackName, trackDescription, trackStartGMTTime, locationList);
 		analyzer.analyzeAndUpdate(trackID);
@@ -333,9 +324,11 @@ public class TrackTabViewActivity extends TabActivity{
 		float totalDistance = analyzer.getTotalDistance();
 		float averageSpeed = analyzer.getAverageSpeed();
 		float maximumSpeed = analyzer.getMaximumSpeed();
+		double minElevation = analyzer.getMinAltitude();
+		double maxElevation = analyzer.getMaxAltitude();
 		long trackPoints = analyzer.getTrackPoints();
 		
-		showText(totalTime, totalDistance, averageSpeed, maximumSpeed, trackPoints);
+		showText(totalTime, totalDistance, averageSpeed, maximumSpeed, minElevation, maxElevation, trackPoints);
 	}
 	
 	private void getTrackStatisticsFromDB() {
@@ -349,10 +342,24 @@ public class TrackTabViewActivity extends TabActivity{
 		long trackPoints = myCursor.getLong(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_trackPoints));
 		myCursor.close();
 		
-		showText(totalTime, totalDistance, averageSpeed, maximumSpeed, trackPoints);
+		locationList = getLocationListFromDB(trackID);
+		ArrayList<Double> altitudeList = new ArrayList<Double>();
+		for (int i=0; i<locationList.size(); i++) {
+			Location location = locationList.get(i);
+			if (location != null)
+				altitudeList.add(location.getAltitude());
+		}
+		Collections.sort(altitudeList);
+		if (altitudeList.size() == 0)
+			altitudeList.add(0D);
+		double minElevation = altitudeList.get(0);
+		double maxElevation = altitudeList.get(altitudeList.size()-1);
+		
+		showText(totalTime, totalDistance, averageSpeed, maximumSpeed, minElevation, maxElevation, trackPoints);
 	}
 	
-	private void showText(long totalTime, float totalDistance, float averageSpeed, float maximumSpeed, long trackPoints) {
+	private void showText(long totalTime, float totalDistance, float averageSpeed, float maximumSpeed, 
+			double minElevation, double maxElevation, long trackPoints) {
 		if (trackName.equals(""))
 			trackName = getString(R.string.new_track);
 		track_name_text.setText(trackName);
@@ -360,6 +367,8 @@ public class TrackTabViewActivity extends TabActivity{
 		track_time_text.setText(IconAdapter.generateTimeString(totalTime, this));
 		track_speed_text.setText(IconAdapter.generateSpeedString(averageSpeed, this));
 		track_maxSpeed_text.setText(IconAdapter.generateSpeedString(maximumSpeed, this));
+		track_minAltitude_text.setText(IconAdapter.generateAltitudeString(minElevation, this));
+		track_maxAltitude_text.setText(IconAdapter.generateAltitudeString(maxElevation, this));
 		track_pointNumber_text.setText(String.valueOf(trackPoints));
 		track_description_text.setText(trackDescription);
 		track_start_time_text.setText(MyTimeUtils.getLocalTimeString(trackStartGMTTime));
@@ -501,21 +510,9 @@ public class TrackTabViewActivity extends TabActivity{
 				
 				final ProgressDialog myProgressDialog = ProgressDialog.show(TrackTabViewActivity.this,	  
 						getString(R.string.drawing_track_progressdialog_title), getString(R.string.drawing_track_progressdialog_body), true);
-				//Show this track on the map
-				locationList = new ArrayList<Location>();
-				Cursor myCursor = BigPlanet.DBAdapter.getTrackPoints(trackID);
-				for (int i=0; i < myCursor.getCount(); i++) {
-					double latitude = myCursor.getDouble(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_latitude));
-					double longitude = myCursor.getDouble(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_longitude)); 
-					
-					Location location = new Location("");
-					location.setLatitude(latitude);
-					location.setLongitude(longitude);
-					locationList.add(location);
-					myCursor.moveToNext();
-				}
-				myCursor.close();
 				
+				//Show this track on the map
+				locationList = getLocationListFromDB(trackID);
 				new Thread(){
 					public void run() {
 						try {
@@ -550,6 +547,27 @@ public class TrackTabViewActivity extends TabActivity{
 		myCursor.close();
 	}
 	
+	private ArrayList<Location> getLocationListFromDB(long trackID) {
+		ArrayList<Location> locationList = new ArrayList<Location>();
+		Cursor myCursor = BigPlanet.DBAdapter.getTrackPoints(trackID);
+		for (int i=0; i < myCursor.getCount(); i++) {
+			double latitude = myCursor.getDouble(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_latitude));
+			double longitude = myCursor.getDouble(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_longitude)); 
+			double altitude = myCursor.getDouble(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_altitude)); 
+			String strGMTTime = myCursor.getString(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_time));
+			
+			Location location = new Location("");
+			location.setLatitude(latitude);
+			location.setLongitude(longitude);
+			location.setAltitude(altitude);
+			location.setTime(MyTimeUtils.getGMTTime(strGMTTime));
+			locationList.add(location);
+			myCursor.moveToNext();
+		}
+		myCursor.close();
+		return locationList;
+	}
+
 	private void resetContentView(){
 //		System.out.println("ResetContentView");
 		myListView.setAdapter(null);

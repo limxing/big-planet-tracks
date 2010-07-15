@@ -54,15 +54,26 @@
 	<string name="import_fail">Fail to import files</string>
 	<string name="new_track">New Track</string>
 	<string name="track_name_string">Name</string>
-	<string name="track_distance_string">Total Distance</string>
-	<string name="track_time_string">Total Time</string>
-	<string name="track_speed_string">Average Speed</string>
 	<string name="track_waypoints_string">Waypoints</string>
-	<string name="track_maxSpeed_string">Max Speed</string>
 	<string name="track_start_time_string">Start Time</string>
 	<string name="track_description_string">Description</string>
 	<string name="whole_track_information_dialog_title">Track Information</string>
 	<string name="speed_unit">km/hr</string>
-	<string name="kilometer_unit">km</string>
-	<string name="meter_unit">m</string>
+	
+	<!-- Stats Labels -->
+	<string name="total_time_label">Total Time</string>
+	<string name="speed">Speed</string>
+	<string name="total_distance_label">Total Distance</string>
+	<string name="unknown">-</string>
+	<string name="max_speed_label">Max Speed</string>
+	<string name="average_speed_label">Average Speed</string>
+	<string name="elevation_gain_label">Elevation Gain</string>
+	<string name="elevation_label">Elevation</string>
+	<string name="latitude_label">Latitude</string>
+	<string name="longitude_label">Longitude</string>
+	<string name="min_elevation_label">Min Elevation</string>
+	<string name="max_elevation_label">Max Elevation</string>
+	<string name="kilometer">km</string>
+	<string name="meter">m</string>
+	<string name="hr">hr</string>
 </resources>

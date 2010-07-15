@@ -68,7 +68,7 @@ public class MyLocationService extends Service implements LocationListener {
 		contentTitle = getString(R.string.app_name);
 		contentText = getString(R.string.notify_recording);
 		
-		Intent notifyIntent = new Intent(this, BigPlanet.class);
+		Intent notifyIntent = new Intent(this, BigPlanetTracks.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(
 				this, 0, notifyIntent, Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
 

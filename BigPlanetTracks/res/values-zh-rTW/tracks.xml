@@ -54,15 +54,26 @@
 	<string name="import_fail">匯入失敗</string>
 	<string name="new_track">新軌跡</string>
 	<string name="track_name_string">名稱</string>
-	<string name="track_distance_string">全部距離</string>
-	<string name="track_time_string">全部時間</string>
-	<string name="track_speed_string">平均速度</string>
 	<string name="track_waypoints_string">標記點</string>
-	<string name="track_maxSpeed_string">最高速度</string>
 	<string name="track_start_time_string">開始時間</string>
 	<string name="track_description_string">描述</string>
 	<string name="whole_track_information_dialog_title">軌跡資訊</string>
 	<string name="speed_unit">公里/小時</string>
-	<string name="kilometer_unit">公里</string>
-	<string name="meter_unit">公尺</string>
+	
+	<!-- Stats Labels -->
+	<string name="total_time_label">全部時間</string>
+	<string name="speed">速度</string>
+	<string name="total_distance_label">全部距離</string>
+	<string name="unknown">-</string>
+	<string name="max_speed_label">最高速度</string>
+	<string name="average_speed_label">平均速度</string>
+	<string name="elevation_gain_label">高低差</string>
+	<string name="elevation_label">海拔</string>
+	<string name="latitude_label">緯度</string>
+	<string name="longitude_label">經度</string>
+	<string name="min_elevation_label">最低海拔</string>
+	<string name="max_elevation_label">最高海拔</string>
+	<string name="kilometer">公里</string>
+	<string name="meter">公尺</string>
+	<string name="hr">小時</string>
 </resources>
