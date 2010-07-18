@@ -1,3 +1,18 @@
+/*
+ * Copyright 2008 Google Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package tyt.android.bigplanettracks;
 
 import java.util.ArrayList;
@@ -13,15 +28,21 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Message;
 
+/**
+ * An activity that displays track statistics to the user.
+ *
+ * @author Sandor Dornbush, (Modified by TYTung)
+ */
 public class StatsActivity extends Activity implements LocationListener {
 
 	private LocationManager locationManager;
 	private UIUpdateThread thread;
 	private final StatsUtilities utils;
-	private long startTime = BigPlanet.recordingTime;
+	private long startTime;
 	private static ArrayList<Location> locationListForDebug;
-	private boolean isDebug = true;
+	private boolean isDebug = false;
 	
 	/**
 	 * A runnable for posting to the UI thread. Will update the total time field.
@@ -29,9 +50,12 @@ public class StatsActivity extends Activity implements LocationListener {
 	private final Runnable updateResults = new Runnable() {
 		public void run() {
 			if (isDebug)
-				getRandomLocation(); // for debugging and testing
-			updateTotalTime();
-			updateAllStats();
+				generateRandomLocation(); // for debugging and testing
+			if (BigPlanet.isGPSTracking) {
+				startTime = BigPlanet.recordingTime;
+				updateTotalTime();
+				updateAllStats();
+			}
 		}
 	};
 
@@ -81,25 +105,24 @@ public class StatsActivity extends Activity implements LocationListener {
 	
 	@Override
 	protected void onPause() {
+		super.onPause();
 		if (thread != null) {
 			thread.finish();
-			unregisterLocationListener();
 		}
-		super.onPause();
+		unregisterLocationListener();
 	}
 
 	@Override
 	protected void onResume() {
-		if (BigPlanet.isGPSTracking) {
-			thread = new UIUpdateThread();
-			thread.start();
-			registerLocationListener();
-			updateAllStats();
-		}
 		super.onResume();
+		thread = new UIUpdateThread();
+		thread.start();
+		registerLocationListener();
+		utils.setAllToUnknown();
+		updateAllStats();
 	}
 
-	protected void updateTotalTime() {
+	private void updateTotalTime() {
 		utils.setTime(R.id.total_time_register, System.currentTimeMillis() - startTime);
 	}
 	
@@ -127,15 +150,17 @@ public class StatsActivity extends Activity implements LocationListener {
 	private void updateAllStats() {
 		ArrayList<Location> locationList;
 		if (!isDebug)
-			locationList = MarkerManager.getLocationList();
+			locationList = MarkerManager.getLocationList(MarkerManager.markersG);
 		else
 			locationList = locationListForDebug;
-		if (locationList != null) {
+		if (locationList != null && locationList.size() > 1) {
 			TrackAnalyzer analyzer = new TrackAnalyzer(null, null, null, locationList, "GPS");
 			analyzer.analyze(false);
 			double totalDistance = analyzer.getTotalDistance();
 			double averageSpeed = analyzer.getAverageSpeed();
 			double maxSpeed = analyzer.getMaximumSpeed();
+			if (averageSpeed > maxSpeed)
+				maxSpeed = averageSpeed;
 			double minElevation = analyzer.getMinAltitude();
 			double maxElevation = analyzer.getMaxAltitude();
 			double elevationGain = maxElevation - minElevation;
@@ -178,6 +203,10 @@ public class StatsActivity extends Activity implements LocationListener {
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
+		int numSatellites = extras.getInt("satellites", 0);
+		BigPlanet.locationProvider = provider+" "+status+" "+numSatellites;
+		Message m = BigPlanet.locationHandler.obtainMessage(BigPlanet.MethodSetActivityTitle, 0, 0, null);
+		BigPlanet.locationHandler.sendMessage(m);
 	}
 
 	/**
@@ -185,11 +214,11 @@ public class StatsActivity extends Activity implements LocationListener {
 	 * This is for debugging and testing only. 
 	 * Useful if there is no GPS signal available.
 	 */
-	public void getRandomLocation() {
+	private void generateRandomLocation() {
 		final Random random = new Random();
 		Location loc = new Location("gps");
-		double latitude = 25.01736 + random.nextDouble() / 1000;
-		double longitude = 121.54066 + random.nextDouble() / 1000;
+		double latitude = 25.01736 + random.nextDouble() / 10000;
+		double longitude = 121.54066 + random.nextDouble() / 10000;
 		loc.setLatitude(latitude);
 		loc.setLongitude(longitude);
 		loc.setAltitude(random.nextDouble() * 100);

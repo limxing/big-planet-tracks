@@ -27,7 +27,7 @@ import tyt.android.bigplanettracks.tracks.MyTimeUtils;
 /**
  * Various utility functions for views that display statistics information.
  *
- * @author Sandor Dornbush
+ * @author Sandor Dornbush, (Modified by TYTung)
  */
 public class StatsUtilities {
 
@@ -83,16 +83,6 @@ public class StatsUtilities {
     setText(id, speed, SPEED_FORMAT);
   }
 
-  public void setAltitudeUnits(int unitLabelId) {
-    TextView unitTextView = (TextView) activity.findViewById(unitLabelId);
-    unitTextView.setText(R.string.meter);
-  }
-
-  public void setDistanceUnits(int unitLabelId) {
-    TextView unitTextView = (TextView) activity.findViewById(unitLabelId);
-    unitTextView.setText(R.string.kilometer);
-  }
-
   public void setSpeedUnits(int unitLabelId, int unitLabelBottomId) {
     TextView unitTextView = (TextView) activity.findViewById(unitLabelId);
     unitTextView.setText(R.string.kilometer);
@@ -110,22 +100,8 @@ public class StatsUtilities {
    */
   public void updateUnits() {
     setSpeedUnits(R.id.speed_unit_label_top, R.id.speed_unit_label_bottom);
-    updateWaypointUnits();
-  }
-
-  /**
-   * Updates the units fields used by waypoints.
-   */
-  public void updateWaypointUnits() {
-    setSpeedUnits(R.id.average_speed_unit_label_top,
-                  R.id.average_speed_unit_label_bottom);
-    setDistanceUnits(R.id.total_distance_unit_label);
-    setSpeedUnits(R.id.max_speed_unit_label_top,
-                  R.id.max_speed_unit_label_bottom);
-    setAltitudeUnits(R.id.elevation_unit_label);
-    setAltitudeUnits(R.id.elevation_gain_unit_label);
-    setAltitudeUnits(R.id.min_elevation_unit_label);
-    setAltitudeUnits(R.id.max_elevation_unit_label);
+    setSpeedUnits(R.id.max_speed_unit_label_top, R.id.max_speed_unit_label_bottom);
+    setSpeedUnits(R.id.average_speed_unit_label_top, R.id.average_speed_unit_label_bottom);
   }
 
   /**
@@ -156,20 +132,6 @@ public class StatsUtilities {
     setAltitude(R.id.min_elevation_register, minElevation);
     setAltitude(R.id.max_elevation_register, maxElevation);
     setAltitude(R.id.elevation_gain_register, elevationGain);
-  }
-
-  public void setSpeedLabel(int id, int speedString) {
-    TextView tv = ((TextView) activity.findViewById(id));
-    if (tv != null) {
-      tv.setText(speedString);
-    }
-  }
-
-  public void setSpeedLabels() {
-    setSpeedLabel(R.id.average_speed_label,
-                  R.string.average_speed_label);
-    setSpeedLabel(R.id.max_speed_label,
-                  R.string.max_speed_label);
   }
   
 }

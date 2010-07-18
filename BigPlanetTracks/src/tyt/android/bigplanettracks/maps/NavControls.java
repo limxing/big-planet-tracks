@@ -15,7 +15,6 @@
  */
 package tyt.android.bigplanettracks.maps;
 
-import tyt.android.bigplanettracks.BigPlanet;
 import tyt.android.bigplanettracks.R;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -32,11 +31,11 @@ import android.widget.RelativeLayout.LayoutParams;
 /**
  * Creates previous and next arrows for a given activity.
  *
- * @author Leif Hendrik Wilden
+ * @author Leif Hendrik Wilden, (Modified by TYTung)
  */
 public class NavControls {
 
-  private static final int KEEP_VISIBLE_MILLIS = 4000;
+  private static final int KEEP_VISIBLE_MILLIS = 2000;
   private static final boolean FADE_CONTROLS = true;
 
   private static final Animation SHOW_NEXT_ANIMATION =
@@ -47,6 +46,8 @@ public class NavControls {
       new AlphaAnimation(0F, 1F);
   private static final Animation HIDE_PREV_ANIMATION =
       new AlphaAnimation(1F, 0F);
+  
+  private float density;
 
   /**
    * A touchable image view.
@@ -64,7 +65,7 @@ public class NavControls {
       icon.setVisibility(View.GONE);
       addView(arrow);
       addView(icon);
-      icon.setPadding((isLeft ? 15 : 10), 27, 15, 0);
+      icon.setPadding((isLeft ? (int)(17*density) : (int)(10*density)), (int)(27*density), (int)(15*density), 0);
     }
 
     public void setIcon(Drawable drawable) {
@@ -116,9 +117,11 @@ public class NavControls {
 
   public NavControls(Context context, ViewGroup container,
       Runnable prevRunnable, Runnable nextRunnable) {
+    this.density = context.getResources().getDisplayMetrics().density;
     this.context = context;
     this.prevRunnable = prevRunnable;
     this.nextRunnable = nextRunnable;
+    
     LayoutParams prevParams = new LayoutParams(
         LayoutParams.WRAP_CONTENT,
         LayoutParams.WRAP_CONTENT);
@@ -128,6 +131,7 @@ public class NavControls {
     prevImage.setLayoutParams(prevParams);
     prevImage.setVisibility(View.INVISIBLE);
     container.addView(prevImage);
+    
     LayoutParams nextParams = new LayoutParams(
         LayoutParams.WRAP_CONTENT,
         LayoutParams.WRAP_CONTENT);
@@ -155,7 +159,7 @@ public class NavControls {
   }
 
   public void show() {
-    if (BigPlanet.isGPSTracking && !isVisible) {
+    if (!isVisible) {
       if (prevRunnable != null && hasPrev) {
         SHOW_PREV_ANIMATION.setDuration(500);
         SHOW_PREV_ANIMATION.startNow();

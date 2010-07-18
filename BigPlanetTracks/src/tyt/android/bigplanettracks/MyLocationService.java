@@ -37,12 +37,21 @@ public class MyLocationService extends Service implements LocationListener {
 		super.onCreate();
 		Log.d("MyLocationService", "Service: onCreate()");
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		showNotification();
-		acquireWakeLock();
 		if (locationHandler == null) {
-			// stop service
+			// stop service to avoid error when recording a track and being killed manually
 			Intent intent = new Intent(this, MyLocationService.class);
 			this.stopService(intent);
+		} else {
+			if (!BigPlanet.isGPSTracking) {
+				// stop service to avoid error when recording a track and being killed manually
+				Intent intent = new Intent(this, MyLocationService.class);
+				this.stopService(intent);
+				clearNotification();
+			} else {
+				// when normally start service
+				showNotification();
+				acquireWakeLock();
+			}
 		}
 	}
 	

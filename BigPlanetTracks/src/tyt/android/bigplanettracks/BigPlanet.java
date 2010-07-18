@@ -62,8 +62,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.Display;
@@ -76,7 +74,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -104,13 +101,13 @@ public class BigPlanet extends Activity {
 
 	private static MarkerManager mm;
 
-	private WakeLock wakeLock;
 	protected static LocationManager locationManager;
 	protected static Location currentLocation;
 	public static Location currentLocationBeforeRecording;
 	public static long recordingTime;
 	protected static String locationProvider = null;
 	
+	private static boolean isFirstEntry = true;
 	protected static boolean inHome = false;
 	public static boolean isFollowMode = true; // default value is auto follow
 	public static boolean isGPSTracking = false;  // default false
@@ -140,15 +137,15 @@ public class BigPlanet extends Activity {
 	private ProgressDialog myGPSDialog = null;
 	private Handler mainThreadHandler; // used by TrackStoringThread
 	protected static Handler locationHandler;
+	protected static Handler titleHandler;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_LEFT_ICON);
 		density = getResources().getDisplayMetrics().density;
 
 		DBAdapter = new TrackDBAdapter();
-		mainThreadHandler = new Handler(){
+		mainThreadHandler = new Handler() {
 			public void handleMessage(Message msg) {
 				switch (msg.what) {
 					case TrackStoringThread.SUCCESS:
@@ -246,7 +243,6 @@ public class BigPlanet extends Activity {
 			}
 			
 			initializeMap();
-			setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.globe);
 			
 			/* Create a ImageView with a auto-follow icon. */
 			mapControl.addView(mAutoFollowRelativeLayout); // We can just run it once.
@@ -274,23 +270,6 @@ public class BigPlanet extends Activity {
 		}
 	}
 	
-	private void acquireWakeLock() {
-		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		if (wakeLock == null) {
-			wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "wakeLock");
-			if (!wakeLock.isHeld()) {
-				wakeLock.acquire();
-			}
-		}
-	}
-	
-	private void releaseWakeLock() {
-		if (wakeLock != null && wakeLock.isHeld()) {
-			wakeLock.release();
-			wakeLock = null;
-		}
-	}
-	
 	public static void disabledAutoFollow(Context context) {
 		if (isFollowMode) {
 			Toast.makeText(context, R.string.auto_follow_disabled, Toast.LENGTH_SHORT).show();
@@ -302,8 +281,7 @@ public class BigPlanet extends Activity {
 	
 	public void enabledAutoFollow(Context context) {
 		if (!isFollowMode) {
-			if (isGPSTracking == false)
-				Toast.makeText(context, R.string.auto_follow_enabled, Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, R.string.auto_follow_enabled, Toast.LENGTH_SHORT).show();
 			mAutoFollowRelativeLayout.setVisibility(View.INVISIBLE);
 			if (currentLocation != null)
 				goToMyLocation(currentLocation, PhysicMap.getZoomLevel());
@@ -411,7 +389,7 @@ public class BigPlanet extends Activity {
 		
 			// check out whether GPS LocationList contains any GPS data or not
 			// due to at least two locations needed to compute the "Distance" measurement
-			if (MarkerManager.getLocationList().size()>1) {
+			if (MarkerManager.getLocationList(MarkerManager.savedTrackG).size()>1) {
 				final CharSequence strDialogTitle = getString(R.string.str_store_gps_location_to_db_title);
 				final CharSequence strDialogBody = getString(R.string.str_store_gps_location_to_db_body);
 				myGPSDialog = ProgressDialog.show(
@@ -422,7 +400,7 @@ public class BigPlanet extends Activity {
 				
 				TrackStoringThread trackStoringThread = new TrackStoringThread();
 				trackStoringThread.setMainHandler(mainThreadHandler);
-				trackStoringThread.setLocationList(MarkerManager.getLocationList());
+				trackStoringThread.setLocationList(MarkerManager.getLocationList(MarkerManager.savedTrackG));
 				trackStoringThread.start();
 			} else {
 				Toast.makeText(
@@ -576,10 +554,10 @@ public class BigPlanet extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		acquireWakeLock();
 		startGPSLocationListener();
 		if (SDCARD_AVAILABLE) {
-			if (isFollowMode) {
+			if (isFirstEntry) {
+				isFirstEntry = false;
 				isFollowMode = false;
 				followMyLocation();
 			}
@@ -589,7 +567,6 @@ public class BigPlanet extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		releaseWakeLock();
 		finishGPSLocationListener(); // release the GPS resources
 	}
 	
@@ -1522,6 +1499,10 @@ public class BigPlanet extends Activity {
 		String zoom = String.valueOf(17-zoomLevel);
 		String title = strSQLiteName + provider + " ["+ zoom + "]";
 		activity.setTitle(title);
+		if (titleHandler != null) {
+			Message m = titleHandler.obtainMessage(BigPlanetTracks.SetTitle, 0, 0, title);
+			titleHandler.sendMessage(m);
+		}
 		int imageID = activity.getResources().getIdentifier("scale"+zoom, "drawable", activity.getPackageName());
 		if (density == 1) {
 			scaleImageView.setImageResource(imageID);

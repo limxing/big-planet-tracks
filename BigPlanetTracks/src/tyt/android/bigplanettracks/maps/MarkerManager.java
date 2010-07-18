@@ -208,10 +208,10 @@ public class MarkerManager {
 		markersDB.clear();
 	}
 	
-	public static ArrayList<Location> getLocationList(){
+	public static ArrayList<Location> getLocationList(List<Marker> markerList){
 		ArrayList<Location> list = new ArrayList<Location>();
-		for(int i=0; i<savedTrackG.size(); i++) {
-			Location location = savedTrackG.get(i).place.getLocation();
+		for (int i=0; i<markerList.size(); i++) {
+			Location location = markerList.get(i).place.getLocation();
 			if (location != null)
 				list.add(location);
 		}
