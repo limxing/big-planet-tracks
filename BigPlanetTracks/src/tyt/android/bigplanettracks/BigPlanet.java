@@ -184,9 +184,6 @@ public class BigPlanet extends Activity {
 				case MethodAddMarker:
 					addMarker(location, PhysicMap.getZoomLevel());
 					break;
-				case MethodSetActivityTitle:
-					setActivityTitle(BigPlanet.this);
-					break;
 				case MethodUpdateScreen:
 					mapControl.updateScreen();
 					break;
@@ -1480,29 +1477,36 @@ public class BigPlanet extends Activity {
 		return endLocation;
 	}
 	
-	private static void setActivityTitle(Activity activity) {
+	protected static String getTitle(String provider) {
 		String strSQLiteName = Preferences.getSQLiteName();
 		// remove ".sqlitedb"
 		strSQLiteName = strSQLiteName.substring(0, strSQLiteName.lastIndexOf("."));
 		// add more info
-		String provider = BigPlanet.locationProvider;
 		if (provider != null) {
 			provider = " @ " + provider;
 		} else {
-			provider = " @ network 1 0";
+			provider = "";
 		}
+		int zoomLevel = PhysicMap.getZoomLevel();
+		String zoom = String.valueOf(17-zoomLevel);
+		String title = strSQLiteName + provider + " ["+ zoom + "]";
+		return title;
+	}
+	
+	private static void setActivityTitle(Activity activity) {
+		String title = getTitle(BigPlanet.locationProvider);
+		activity.setTitle(title);
+		if (titleHandler != null) {
+			Message m = titleHandler.obtainMessage(BigPlanetTracks.SetTitle, 0, 0, title);
+			titleHandler.sendMessage(m);
+		}
+		// scale
 		int zoomLevel = PhysicMap.getZoomLevel();
 		if (scaledBitmapZoomLevel != zoomLevel) {
 			scaledBitmapZoomLevel = zoomLevel;
 			scaledBitmap = null;
 		}
 		String zoom = String.valueOf(17-zoomLevel);
-		String title = strSQLiteName + provider + " ["+ zoom + "]";
-		activity.setTitle(title);
-		if (titleHandler != null) {
-			Message m = titleHandler.obtainMessage(BigPlanetTracks.SetTitle, 0, 0, title);
-			titleHandler.sendMessage(m);
-		}
 		int imageID = activity.getResources().getIdentifier("scale"+zoom, "drawable", activity.getPackageName());
 		if (density == 1) {
 			scaleImageView.setImageResource(imageID);

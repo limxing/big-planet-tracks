@@ -9,6 +9,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.location.Location;
 import android.os.Bundle;
 
@@ -21,7 +22,7 @@ public class TrackDBAdapter {
 	/**
 	 * TRACKS_TABLE
 	 */
-	private final static String TRACKS_TABLE = "tracks";
+	protected final static String TRACKS_TABLE = "tracks";
 	public final static String FIELD_trackid = "trackid"; // column 0 PK
 	public final static String FIELD_name = "name"; // column 1
 	public final static String FIELD_description = "description";// column 2
@@ -30,9 +31,11 @@ public class TrackDBAdapter {
 	public final static String FIELD_totalDistance = "total_distance"; // column 5
 	public final static String FIELD_averageSpeed = "average_speed"; // column 6
 	public final static String FIELD_maximumSpeed = "maximum_speed"; // column 7
-	public final static String FIELD_trackPoints = "points"; // column 8
-	public final static String FIELD_trackSource = "source"; // column 9
-	public final static String FIELD_measureVersion = "measure_version"; // column 10
+	public final static String FIELD_minAltitude = "min_altitude"; // column 8
+	public final static String FIELD_maxAltitude = "max_altitude"; // column 9
+	public final static String FIELD_trackPoints = "points"; // column 10
+	public final static String FIELD_trackSource = "source"; // column 11
+	public final static String FIELD_measureVersion = "measure_version"; // column 12
 	
 	/**
 	 * WAYPOINTS_TABLE
@@ -52,7 +55,7 @@ public class TrackDBAdapter {
 	
 	private final static String DATABASE_NAME = "tracks.db";
 	
-	private static final String TRACKS_TABLE_DDL ="CREATE TABLE IF NOT EXISTS " + TRACKS_TABLE + " (" 
+	protected static final String TRACKS_TABLE_DDL ="CREATE TABLE IF NOT EXISTS " + TRACKS_TABLE + " (" 
 	+ FIELD_trackid + " INTEGER primary key autoincrement, " 
 	+ " "+ FIELD_name + " VARCHAR,"
 	+ " "+ FIELD_description + " VARCHAR, "
@@ -61,6 +64,8 @@ public class TrackDBAdapter {
 	+ " "+ FIELD_totalDistance + " FLOAT, "
 	+ " "+ FIELD_averageSpeed + " FLOAT, "
 	+ " "+ FIELD_maximumSpeed + " FLOAT, "
+	+ " "+ FIELD_minAltitude + " DOUBLE, "
+	+ " "+ FIELD_maxAltitude + " DOUBLE, "
 	+ " "+ FIELD_trackPoints + " INTEGER, "
 	+ " "+ FIELD_trackSource + " CHAR(4), "
 	+ " "+ FIELD_measureVersion + " INTEGER);";
@@ -84,8 +89,34 @@ public class TrackDBAdapter {
 			String sqliteFilePath = SQLLocalStorage.TRACK_PATH + DATABASE_NAME;
 			db = SQLiteDatabase.openDatabase(sqliteFilePath, null,
 					SQLiteDatabase.CREATE_IF_NECESSARY);
-			db.execSQL(TRACKS_TABLE_DDL);
-			db.execSQL(TRACK_POINTS_TABLE_DDL);
+			
+//			System.out.println("db.getVersion() = "+db.getVersion());
+			if (db.getVersion() < 1) {
+				db.beginTransaction();
+				try {
+					// has database of BPT 2.0 and update to BPT 2.1
+					db.execSQL(SQLConstants.SQL_UPDATE_1_1);
+					db.execSQL(SQLConstants.SQL_UPDATE_1_2);
+					db.execSQL(SQLConstants.SQL_UPDATE_1_3);
+					db.execSQL(TRACKS_TABLE_DDL);
+					db.execSQL(SQLConstants.SQL_UPDATE_1_5);
+					db.execSQL(SQLConstants.SQL_UPDATE_1_6);
+					db.execSQL(SQLConstants.SQL_UPDATE_1_7);
+					db.setTransactionSuccessful();
+				} catch (SQLiteException e) {
+					// no database of BPT 2.0 (i.e. new installation)
+					db.execSQL(TRACKS_TABLE_DDL);
+					db.execSQL(TRACK_POINTS_TABLE_DDL);
+					db.setTransactionSuccessful();
+				} finally {
+					db.endTransaction();
+					db.setVersion(1);
+					System.out.println("Database has upgraded to version "+db.getVersion());
+				}
+			} else {
+				db.execSQL(TRACKS_TABLE_DDL);
+				db.execSQL(TRACK_POINTS_TABLE_DDL);
+			}
 		}
 		return this;
 	}
@@ -154,9 +185,11 @@ public class TrackDBAdapter {
 				FIELD_totalDistance,
 				FIELD_averageSpeed,
 				FIELD_maximumSpeed,
+				FIELD_minAltitude,
+				FIELD_maxAltitude,
 				FIELD_trackPoints,
 				FIELD_trackSource,
-				FIELD_measureVersion}, 
+				FIELD_measureVersion }, 
 				null, 
 				null, 
 				null, 
@@ -186,6 +219,8 @@ public class TrackDBAdapter {
 						FIELD_totalDistance,
 						FIELD_averageSpeed,
 						FIELD_maximumSpeed,
+						FIELD_minAltitude,
+						FIELD_maxAltitude,
 						FIELD_trackPoints,
 						FIELD_trackSource,
 						FIELD_measureVersion
@@ -211,12 +246,15 @@ public class TrackDBAdapter {
 	}
 	
 	public boolean updateTrack(long trackID, long totalTime, float totalDistance, 
-			float averageSpeed, float maximumSpeed, long trackPoints, int measureVersion) {
+			float averageSpeed, float maximumSpeed, double minAltitude, double maxAltitude, 
+			long trackPoints, int measureVersion) {
 		ContentValues cv = new ContentValues();
 		cv.put(FIELD_totalTime, totalTime);
 		cv.put(FIELD_totalDistance, totalDistance);
 		cv.put(FIELD_averageSpeed, averageSpeed);
 		cv.put(FIELD_maximumSpeed, maximumSpeed);
+		cv.put(FIELD_minAltitude, minAltitude);
+		cv.put(FIELD_maxAltitude, maxAltitude);
 		cv.put(FIELD_trackPoints, trackPoints);
 		cv.put(FIELD_measureVersion, measureVersion);
 		return db.update(TRACKS_TABLE, cv, FIELD_trackid + "=" + trackID, null) > 0;

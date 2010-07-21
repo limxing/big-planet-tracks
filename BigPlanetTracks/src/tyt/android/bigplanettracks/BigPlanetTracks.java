@@ -131,7 +131,7 @@ public class BigPlanetTracks extends TabActivity implements OnTouchListener {
 		}
 	}
 	
-	protected Handler handler = new Handler() {
+	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			String message = (String) msg.obj;
 			switch (msg.what) {

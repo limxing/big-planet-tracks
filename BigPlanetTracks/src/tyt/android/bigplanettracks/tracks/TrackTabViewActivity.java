@@ -1,7 +1,6 @@
 package tyt.android.bigplanettracks.tracks;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import tyt.android.bigplanettracks.BigPlanet;
@@ -339,22 +338,11 @@ public class TrackTabViewActivity extends TabActivity{
 		float totalDistance = myCursor.getFloat(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_totalDistance));
 		float averageSpeed = myCursor.getFloat(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_averageSpeed));
 		float maximumSpeed = myCursor.getFloat(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_maximumSpeed));
+		double minElevation = myCursor.getDouble(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_minAltitude));
+		double maxElevation = myCursor.getDouble(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_maxAltitude));
 		long trackPoints = myCursor.getLong(myCursor.getColumnIndexOrThrow(TrackDBAdapter.FIELD_trackPoints));
 		myCursor.close();
-		
-		locationList = getLocationListFromDB(trackID);
-		ArrayList<Double> altitudeList = new ArrayList<Double>();
-		for (int i=0; i<locationList.size(); i++) {
-			Location location = locationList.get(i);
-			if (location != null)
-				altitudeList.add(location.getAltitude());
-		}
-		Collections.sort(altitudeList);
-		if (altitudeList.size() == 0)
-			altitudeList.add(0D);
-		double minElevation = altitudeList.get(0);
-		double maxElevation = altitudeList.get(altitudeList.size()-1);
-		
+				
 		showText(totalTime, totalDistance, averageSpeed, maximumSpeed, minElevation, maxElevation, trackPoints);
 	}
 	

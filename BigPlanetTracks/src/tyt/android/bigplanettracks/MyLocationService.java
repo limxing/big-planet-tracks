@@ -191,8 +191,12 @@ public class MyLocationService extends Service implements LocationListener {
 			}
 		}
 		//BigPlanet.setActivityTitle(BigPlanet.this);
-		Message m = locationHandler.obtainMessage(BigPlanet.MethodSetActivityTitle, 0, 0, null);
-		locationHandler.sendMessage(m);
+		provider = provider+" "+status+" "+numSatellites;
+		String title = BigPlanet.getTitle(provider);
+		if (BigPlanet.titleHandler != null) {
+			Message m = BigPlanet.titleHandler.obtainMessage(BigPlanetTracks.SetTitle, 0, 0, title);
+			BigPlanet.titleHandler.sendMessage(m);
+		}
 	}
 	
 }

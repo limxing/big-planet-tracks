@@ -67,7 +67,7 @@
 	<string name="unknown">-</string>
 	<string name="max_speed_label">最高速度</string>
 	<string name="average_speed_label">平均速度</string>
-	<string name="elevation_gain_label">高低差</string>
+	<string name="elevation_gain_label">海拔增益</string>
 	<string name="elevation_label">海拔</string>
 	<string name="latitude_label">纬度</string>
 	<string name="longitude_label">经度</string>

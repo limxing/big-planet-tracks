@@ -28,6 +28,8 @@ public class TrackAnalyzer {
 	private float totalDistance;
 	private float averageSpeed;
 	private float maximumSpeed;
+	private double minAltitude;
+	private double maxAltitude;
 	private int trackPoints;
 
 	
@@ -45,6 +47,8 @@ public class TrackAnalyzer {
 		totalDistance = 0f;
 		averageSpeed = 0f;
 		maximumSpeed = 0f;
+		minAltitude = 0d;
+		maxAltitude = 0d;
 		trackPoints = locationList.size();
 	}
 	
@@ -61,6 +65,7 @@ public class TrackAnalyzer {
 			computeTotalDistance();
 			computeAverageSpeed();
 			computeMaximumSpeed();
+			computeAltitude();
 			Collections.sort(altitudeList);
 		}
 		if (hasLog) {
@@ -68,6 +73,8 @@ public class TrackAnalyzer {
 			Log.i("Message", "totalDistance="+totalDistance+"m");
 			Log.i("Message", "averageSpeed="+averageSpeed+"km/hr");
 			Log.i("Message", "maximumSpeed="+maximumSpeed+"km/hr");
+			Log.i("Message", "minAltitude="+minAltitude+"m");
+			Log.i("Message", "maxAltitude="+maxAltitude+"m");
 			Log.i("Message", "trackPoints="+trackPoints);
 		}
 	}
@@ -79,7 +86,7 @@ public class TrackAnalyzer {
 		analyze(true);
 		BigPlanet.DBAdapter.open();
 		BigPlanet.DBAdapter.updateTrack(trackID, totalTime, totalDistance, 
-				averageSpeed, maximumSpeed, trackPoints, measureVersion);
+				averageSpeed, maximumSpeed, minAltitude, maxAltitude, trackPoints, measureVersion);
 		Log.i("Message", "measureVersion has been updated: "+measureVersion);
 	}
 
@@ -95,7 +102,7 @@ public class TrackAnalyzer {
 		analyze(true);
 		
 		BigPlanet.DBAdapter.updateTrack(trackID, totalTime, totalDistance, 
-				averageSpeed, maximumSpeed, trackPoints, measureVersion);
+				averageSpeed, maximumSpeed, minAltitude, maxAltitude, trackPoints, measureVersion);
 		Log.i("Message", "Insert a new track successfully");
 		Log.i("Message", "-------------------------------");
 	}
@@ -163,6 +170,13 @@ public class TrackAnalyzer {
 		}
 	}
 	
+	private void computeAltitude() {
+		if (altitudeList.size() > 0) {
+			minAltitude = altitudeList.get(0);
+			maxAltitude = altitudeList.get(altitudeList.size()-1);
+		}
+	}
+	
 	public long getTotalTime() { 
 		return totalTime;
 	}
@@ -179,22 +193,16 @@ public class TrackAnalyzer {
 		return maximumSpeed;
 	}
 	
-	public int getTrackPoints() {
-		return locationList.size();
+	public double getMinAltitude() {
+		return minAltitude;
 	}
 	
 	public double getMaxAltitude() {
-		double altitude = 0;
-		if (altitudeList.size() > 0)
-			altitude = altitudeList.get(altitudeList.size()-1);
-		return altitude;
+		return maxAltitude;
 	}
 	
-	public double getMinAltitude() {
-		double altitude = 0;
-		if (altitudeList.size() > 0)
-			altitude = altitudeList.get(0);
-		return altitude;
+	public int getTrackPoints() {
+		return locationList.size();
 	}
 	
 }

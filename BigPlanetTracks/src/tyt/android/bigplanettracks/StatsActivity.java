@@ -204,9 +204,12 @@ public class StatsActivity extends Activity implements LocationListener {
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		int numSatellites = extras.getInt("satellites", 0);
-		BigPlanet.locationProvider = provider+" "+status+" "+numSatellites;
-		Message m = BigPlanet.locationHandler.obtainMessage(BigPlanet.MethodSetActivityTitle, 0, 0, null);
-		BigPlanet.locationHandler.sendMessage(m);
+		provider = provider+" "+status+" "+numSatellites;
+		String title = BigPlanet.getTitle(provider);
+		if (BigPlanet.titleHandler != null) {
+			Message m = BigPlanet.titleHandler.obtainMessage(BigPlanetTracks.SetTitle, 0, 0, title);
+			BigPlanet.titleHandler.sendMessage(m);
+		}
 	}
 
 	/**
