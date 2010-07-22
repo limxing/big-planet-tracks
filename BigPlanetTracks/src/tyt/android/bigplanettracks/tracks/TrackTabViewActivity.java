@@ -311,7 +311,7 @@ public class TrackTabViewActivity extends TabActivity{
 		myCursor.close();
 	}
 	
-	// real time
+	// slow
 	private void calculateWaypointsFromDB() {
 		getNameDescriptionFromDB();
 		
@@ -330,6 +330,7 @@ public class TrackTabViewActivity extends TabActivity{
 		showText(totalTime, totalDistance, averageSpeed, maximumSpeed, minElevation, maxElevation, trackPoints);
 	}
 	
+	// very fast
 	private void getTrackStatisticsFromDB() {
 		getNameDescriptionFromDB();
 		

@@ -10,6 +10,7 @@ public class SQLConstants {
 	public static final String SQL_UPDATE_1_3 = "DROP TABLE '"+ table +"';";
 //	public static final String SQL_UPDATE_1_4 = TrackDBAdapter.TRACKS_TABLE_DDL;
 	public static final String SQL_UPDATE_1_5 = "INSERT INTO '"+ table +"' (" +
+			TrackDBAdapter.FIELD_trackid + ", " +
 			TrackDBAdapter.FIELD_name + ", " +
 			TrackDBAdapter.FIELD_description + ", " +
 			TrackDBAdapter.FIELD_startTime + ", " +
@@ -21,6 +22,7 @@ public class SQLConstants {
 			TrackDBAdapter.FIELD_trackSource + ", " +
 			TrackDBAdapter.FIELD_measureVersion +
 			") SELECT " +
+			TrackDBAdapter.FIELD_trackid + ", " +
 			TrackDBAdapter.FIELD_name + ", " +
 			TrackDBAdapter.FIELD_description + ", " +
 			TrackDBAdapter.FIELD_startTime + ", " +

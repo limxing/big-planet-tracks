@@ -551,8 +551,8 @@ public class BigPlanet extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		startGPSLocationListener();
 		if (SDCARD_AVAILABLE) {
+			startGPSLocationListener();
 			if (isFirstEntry) {
 				isFirstEntry = false;
 				isFollowMode = false;
