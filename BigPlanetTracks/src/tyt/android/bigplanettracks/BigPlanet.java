@@ -58,6 +58,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Proxy;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -1044,7 +1045,8 @@ public class BigPlanet extends Activity {
 	}
 
 	private void showAbout() {
-		String about = getString(R.string.ABOUT_MESSAGE).replace("{url}", getString(R.string.ABOUT_URL));
+		final String url = getString(R.string.ABOUT_URL);
+		String about = getString(R.string.ABOUT_MESSAGE).replace("{url}", url);
 		TextView tv = new TextView(this);
 		tv.setLinksClickable(true);
 		tv.setAutoLinkMask(Linkify.EMAIL_ADDRESSES);
@@ -1070,14 +1072,27 @@ public class BigPlanet extends Activity {
 		scrollPanel.addView(tv);
 		try {
 			if ((Integer.parseInt(packageNum)-1)%10==0) {
-				new AlertDialog.Builder(this).setTitle(getString(R.string.ABOUT_TITLE)+" "+versionName)
-				.setView(scrollPanel).setIcon(R.drawable.globe).setPositiveButton(
+				new AlertDialog.Builder(this)
+				.setTitle(getString(R.string.ABOUT_TITLE)+" "+versionName)
+				.setView(scrollPanel).setIcon(R.drawable.globe)
+				.setPositiveButton(
 						R.string.OK_LABEL,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 							}
-						}).show();
+						})
+				.setNeutralButton(
+						R.string.website,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int whichButton) {
+								Intent i = new Intent(Intent.ACTION_VIEW);
+								i.setData(Uri.parse(url));
+								startActivity(i);
+							}
+						})
+				.show();
 			}
 		} catch (NumberFormatException e) {
 		}

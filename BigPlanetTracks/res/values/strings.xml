@@ -19,6 +19,7 @@
     <string name="NO_LABEL">No</string>
     <string name="OK_LABEL">OK</string>
     <string name="CANCEL_LABEL">Cancel</string>
+    <string name="website">Web Site</string>
     
     <string name="ADD_BUTTON">Add</string>
     <string name="SAVE_BUTTON">Save</string>
@@ -40,7 +41,7 @@
     <string name="BOOKMARKS_MENU">Bookmarks</string>
     <string name="BOOKMARK_ADD_MENU">Add</string>
     <string name="BOOKMARKS_VIEW_MENU">View</string>
-    <string name="SELECT_OBJECT_MESSAGE">Select object</string>
+    <string name="SELECT_OBJECT_MESSAGE">Double click to select object</string>
     
     <string name="SELECT_NETWORK_MODE_LABEL">Do you want to use network to download the maps?</string>
     <string name="OFFLINE_MODE_LABEL">No</string>
@@ -72,14 +73,22 @@
     
     <string name="ABOUT_TITLE">Big Planet Tracks</string>
     <string name="ABOUT_MESSAGE">
-Big Planet Tracks is an online/offline maps application that can import, export and record your GPS tracks and show the track\'s time, distance, speed, etc.\n
+Big Planet Tracks is an online/offline maps application that can import, export and record your GPS tracks, and shows live/real-time statistics such as time, speed, distance, and elevation.\n
 \n
+Big Planet Tracks
 ©2009-2010 Developer: TYTung\n
 Contributors: taiyuchen, dob711\n
-Modified from \'Big Planet\' by hudvin\n
 Released under the GPLv3\n
-All rights reserved.\n
 \n
+Big Planet TW
+©2009-2010 Developer: TYTung\n
+Released under the GPLv2\n
+\n
+Big Planet
+©2009 Developer: hudvin\n
+Released under the GPLv2\n
+\n
+All rights reserved.\n
 Please visit \"Dr. TYT \'s Android Map\" for more info.\n{url}
     </string>
     <string name="ABOUT_URL">http://android-map.blogspot.com</string>

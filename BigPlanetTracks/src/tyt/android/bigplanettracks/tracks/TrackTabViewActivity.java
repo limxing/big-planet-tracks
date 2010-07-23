@@ -72,7 +72,7 @@ public class TrackTabViewActivity extends TabActivity{
 	public static ProgressDialog myTrackExportDialog;
 	private Handler trackListViewHandler;
 	private View editTrackDialogLayout;
-	private View statisticsDialogLayout;
+	private View statisticsView;
 	private String trackName;
 	private String trackDescription;
 	private String trackStartGMTTime;
@@ -82,8 +82,8 @@ public class TrackTabViewActivity extends TabActivity{
 	private TextView track_time_text;
 	private TextView track_speed_text;
 	private TextView track_maxSpeed_text;
-	private TextView track_maxAltitude_text;
 	private TextView track_minAltitude_text;
+	private TextView track_maxAltitude_text;
 	private TextView track_pointNumber_text;
 	private TextView track_description_text;
 	private TextView track_start_time_text;
@@ -252,18 +252,18 @@ public class TrackTabViewActivity extends TabActivity{
 				break;
 				
 			case GET_INFORMATION_DIALOG:
-				statisticsDialogLayout = inflater.inflate(R.layout.track_statistics_layout,(ViewGroup) findViewById(R.id.ScrollView01));
-				track_name_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_name_content_view);
-				track_distance_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_distance_content_view);
-				track_time_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_time_content_view);
-				track_speed_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_speed_content_view);
-				track_maxSpeed_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_maxSpeed_content_view);
-				track_minAltitude_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_min_elevation_content_view);
-				track_maxAltitude_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_max_elevation_content_view);
-				track_pointNumber_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_waypoints_content_view);
-				track_start_time_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_start_time_content_view);
-				track_description_text = (TextView) statisticsDialogLayout.findViewById(R.id.track_description_content_view);
-				builder.setView(statisticsDialogLayout);
+				statisticsView = inflater.inflate(R.layout.track_statistics_layout,(ViewGroup) findViewById(R.id.statisticsView));
+				track_name_text = (TextView) statisticsView.findViewById(R.id.track_name_content_view);
+				track_distance_text = (TextView) statisticsView.findViewById(R.id.track_distance_content_view);
+				track_time_text = (TextView) statisticsView.findViewById(R.id.track_time_content_view);
+				track_speed_text = (TextView) statisticsView.findViewById(R.id.track_speed_content_view);
+				track_maxSpeed_text = (TextView) statisticsView.findViewById(R.id.track_maxSpeed_content_view);
+				track_minAltitude_text = (TextView) statisticsView.findViewById(R.id.track_min_elevation_content_view);
+				track_maxAltitude_text = (TextView) statisticsView.findViewById(R.id.track_max_elevation_content_view);
+				track_pointNumber_text = (TextView) statisticsView.findViewById(R.id.track_waypoints_content_view);
+				track_start_time_text = (TextView) statisticsView.findViewById(R.id.track_start_time_content_view);
+				track_description_text = (TextView) statisticsView.findViewById(R.id.track_description_content_view);
+				builder.setView(statisticsView);
 				builder.setTitle(getString(R.string.whole_track_information_dialog_title));
 				builder.setInverseBackgroundForced(true);
 				break;

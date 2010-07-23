@@ -31,7 +31,6 @@ public class TrackAnalyzer {
 	private double minAltitude;
 	private double maxAltitude;
 	private int trackPoints;
-
 	
 	public TrackAnalyzer(String trackName, String trackDescription, String startGMTTime, 
 			ArrayList<Location> locationList, String trackSource) {
@@ -43,12 +42,12 @@ public class TrackAnalyzer {
 		
 		altitudeList = new ArrayList<Double>();
 		speedList = new ArrayList<Float>();
-		totalTime = 0;
-		totalDistance = 0f;
-		averageSpeed = 0f;
-		maximumSpeed = 0f;
-		minAltitude = 0d;
-		maxAltitude = 0d;
+//		totalTime = 0;
+//		totalDistance = 0f;
+//		averageSpeed = 0f;
+//		maximumSpeed = 0f;
+//		minAltitude = 0d;
+//		maxAltitude = 0d;
 		trackPoints = locationList.size();
 	}
 	
@@ -66,7 +65,6 @@ public class TrackAnalyzer {
 			computeAverageSpeed();
 			computeMaximumSpeed();
 			computeAltitude();
-			Collections.sort(altitudeList);
 		}
 		if (hasLog) {
 			Log.i("Message", "totalTime="+MyTimeUtils.getTimeString(totalTime));
@@ -162,8 +160,8 @@ public class TrackAnalyzer {
 	}
 	
 	private void computeMaximumSpeed() {
-		Collections.sort(speedList);
 		if (speedList.size() > 0) {
+			Collections.sort(speedList);
 			maximumSpeed = speedList.get(speedList.size()-1);
 		} else {
 			maximumSpeed = 0;
@@ -172,6 +170,7 @@ public class TrackAnalyzer {
 	
 	private void computeAltitude() {
 		if (altitudeList.size() > 0) {
+			Collections.sort(altitudeList);
 			minAltitude = altitudeList.get(0);
 			maxAltitude = altitudeList.get(altitudeList.size()-1);
 		}

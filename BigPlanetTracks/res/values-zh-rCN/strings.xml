@@ -19,6 +19,7 @@
     <string name="NO_LABEL">否</string>
     <string name="OK_LABEL">确定</string>
     <string name="CANCEL_LABEL">取消</string>
+    <string name="website">网站</string>
     
     <string name="ADD_BUTTON">新增</string>
     <string name="SAVE_BUTTON">储存</string>
@@ -40,7 +41,7 @@
     <string name="BOOKMARKS_MENU">书签</string>
     <string name="BOOKMARK_ADD_MENU">新增</string>
     <string name="BOOKMARKS_VIEW_MENU">检视</string>
-    <string name="SELECT_OBJECT_MESSAGE">选择物件</string>
+    <string name="SELECT_OBJECT_MESSAGE">双击地图选择物件</string>
     
     <string name="SELECT_NETWORK_MODE_LABEL">您想要使用网路下载地图吗?</string>
     <string name="OFFLINE_MODE_LABEL">否</string>
@@ -72,14 +73,22 @@
     
     <string name="ABOUT_TITLE">Big Planet Tracks\n*星迹地图*</string>
     <string name="ABOUT_MESSAGE">
-*星迹地图* 是一款实用的在线, 离线地图程式, 能汇入, 汇出与记录 GPS 轨迹, 显示时间, 距离, 速度等数据。\n
+*星迹地图* 是一款实用的在线, 离线地图程式, 能汇入, 汇出与记录 GPS 轨迹, 并即时显示时间, 速度, 距离, 海拔等统计数据。\n
 \n
-©2009-2010 程式开发者: TYTung\n
+Big Planet Tracks
+©2009-2010 开发者: TYTung\n
 贡献者: taiyuchen, dob711\n
-修改自 Big Planet (hudvin)\n
-依据 GPLv3 授权条款释出\n
-版权所有。\n
+依据 GPLv3 授权条款释出。\n
 \n
+Big Planet TW
+©2009-2010 开发者: TYTung\n
+依据 GPLv2 授权条款释出。\n
+\n
+Big Planet
+©2009 开发者: hudvin\n
+依据 GPLv2 授权条款释出。\n
+\n
+版权为以上开发者所有。\n
 详情请看网站 \"Dr. TYT 的 Android 地图\"。\n{url}
     </string>
     <string name="ABOUT_URL">http://android-map.blogspot.com</string>
