@@ -205,8 +205,10 @@ public class BigPlanet extends Activity {
 							}).show();
 		} else {
 			SDCARD_AVAILABLE = true;
-			SQLLocalStorage.SD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator;
-			SQLLocalStorage.updateSDPaths();
+			if (new File(SQLLocalStorage.TRACK_PATH+"/sdcard.xml").exists()) {
+				SQLLocalStorage.SD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator;
+				SQLLocalStorage.updateSDPaths();
+			}
 			
 			searchIntentReceiver = new MySearchIntentReceiver();
 			registerReceiver(searchIntentReceiver, new IntentFilter(SearchAction));
