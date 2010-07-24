@@ -380,34 +380,55 @@ public class BigPlanet extends Activity {
 				}
 			}
 		} else {
-			isGPSTracking = false;
-			ivRecordTrack.setImageResource(R.drawable.btn_record_start);
-			disabledTrack(BigPlanet.this);
-//			Log.i("Message","Start to store GPS Locations to DB...");
-		
-			// check out whether GPS LocationList contains any GPS data or not
-			// due to at least two locations needed to compute the "Distance" measurement
-			if (MarkerManager.getLocationList(MarkerManager.savedTrackG).size()>1) {
-				final CharSequence strDialogTitle = getString(R.string.str_store_gps_location_to_db_title);
-				final CharSequence strDialogBody = getString(R.string.str_store_gps_location_to_db_body);
-				myGPSDialog = ProgressDialog.show(
+			// a dialog to make sure that user wants to stop recording
+			new AlertDialog.Builder(BigPlanet.this).setTitle(R.string.stop_tracking)
+			.setPositiveButton(
+					R.string.YES_LABEL,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							stopTracking();
+						}
+					})
+			.setNeutralButton(
+					R.string.NO_LABEL,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+						}
+					})
+			.show();
+		}
+	}
+
+	private void stopTracking() {
+		isGPSTracking = false;
+		ivRecordTrack.setImageResource(R.drawable.btn_record_start);
+		disabledTrack(BigPlanet.this);
+//		Log.i("Message","Start to store GPS Locations to DB...");
+	
+		// check out whether GPS LocationList contains any GPS data or not
+		// due to at least two locations needed to compute the "Distance" measurement
+		if (MarkerManager.getLocationList(MarkerManager.savedTrackG).size()>1) {
+			final CharSequence strDialogTitle = getString(R.string.str_store_gps_location_to_db_title);
+			final CharSequence strDialogBody = getString(R.string.str_store_gps_location_to_db_body);
+			myGPSDialog = ProgressDialog.show(
+					BigPlanet.this,
+					strDialogTitle,
+					strDialogBody, 
+					true);
+			
+			TrackStoringThread trackStoringThread = new TrackStoringThread();
+			trackStoringThread.setMainHandler(mainThreadHandler);
+			trackStoringThread.setLocationList(MarkerManager.getLocationList(MarkerManager.savedTrackG));
+			trackStoringThread.start();
+		} else {
+			Toast.makeText(
 						BigPlanet.this,
-						strDialogTitle,
-						strDialogBody, 
-						true);
-				
-				TrackStoringThread trackStoringThread = new TrackStoringThread();
-				trackStoringThread.setMainHandler(mainThreadHandler);
-				trackStoringThread.setLocationList(MarkerManager.getLocationList(MarkerManager.savedTrackG));
-				trackStoringThread.start();
-			} else {
-				Toast.makeText(
-							BigPlanet.this,
-							getString(R.string.gps_locationlist_has_no_data),
-							Toast.LENGTH_LONG).show();
-				clearSaveTracksG();
-//				Log.i("Message","The size of LocationList is less than two points");
-			}
+						getString(R.string.gps_locationlist_has_no_data),
+						Toast.LENGTH_LONG).show();
+			clearSaveTracksG();
+//			Log.i("Message","The size of LocationList is less than two points");
 		}
 	}
 
