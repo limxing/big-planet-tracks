@@ -75,20 +75,23 @@
     <string name="ABOUT_MESSAGE">
 *星迹地图* 是一款实用的在线, 离线地图程式, 能汇入, 汇出与记录 GPS 轨迹, 并即时显示时间, 速度, 距离, 海拔等统计数据。\n
 \n
-Big Planet Tracks
-©2009-2010 开发者: TYTung\n
+Big Planet Tracks v2 系列\n
+(加强版离线地图及 GPS 轨迹记录)\n
+版权所有 © 2009-2010 开发者: tytung\n
 贡献者: taiyuchen, dob711\n
 依据 GPLv3 授权条款释出。\n
 \n
-Big Planet TW
-©2009-2010 开发者: TYTung\n
+Big Planet TW 1.6.8\n
+(加强版离线地图) 2010年5月12日停止开发。\n
+版权所有 © 2009-2010 开发者: tytung\n
 依据 GPLv2 授权条款释出。\n
 \n
-Big Planet
-©2009 开发者: hudvin\n
+Big Planet 1.2.4\n
+(基础版离线地图) 2009年6月19日停止开发。\n
+版权所有 © 2009 开发者: hudvin\n
 依据 GPLv2 授权条款释出。\n
 \n
-版权为以上开发者所有。\n
+以上参与者保留所有的权利。\n
 详情请看网站 \"Dr. TYT 的 Android 地图\"。\n{url}
     </string>
     <string name="ABOUT_URL">http://android-map.blogspot.com</string>

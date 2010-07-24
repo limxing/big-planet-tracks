@@ -75,17 +75,20 @@
     <string name="ABOUT_MESSAGE">
 Big Planet Tracks is an online/offline maps application that can import, export and record your GPS tracks, and shows live/real-time statistics such as time, speed, distance, and elevation.\n
 \n
-Big Planet Tracks
-©2009-2010 Developer: TYTung\n
+Big Planet Tracks v2 series\n
+(enhanced offline map and GPS tracking)\n
+Copyright © 2009-2010 Developer: tytung\n
 Contributors: taiyuchen, dob711\n
 Released under the GPLv3\n
 \n
-Big Planet TW
-©2009-2010 Developer: TYTung\n
+Big Planet TW 1.6.8\n
+(enhanced offline map) developed until May 12, 2010.\n
+Copyright © 2009-2010 Developer: tytung\n
 Released under the GPLv2\n
 \n
-Big Planet
-©2009 Developer: hudvin\n
+Big Planet 1.2.4\n
+(core offline map) developed until Jun 19, 2009.\n
+Copyright © 2009 Developer: hudvin\n
 Released under the GPLv2\n
 \n
 All rights reserved.\n
