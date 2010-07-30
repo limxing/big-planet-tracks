@@ -124,11 +124,11 @@ public class MyLocationService extends Service implements LocationListener {
 				//goToMyLocation(location, PhysicMap.getZoomLevel());
 				Message m = locationHandler.obtainMessage(BigPlanet.MethodGoToMyLocation, 0, 0, location);
 				locationHandler.sendMessage(m);
-			} 
-			// non-reach code because GPS is disabled
-//			else {
+			} else {
 //				addMarker(location, PhysicMap.getZoomLevel());
-//			}
+				Message m = locationHandler.obtainMessage(BigPlanet.MethodAddMarker, 0, 0, location);
+				locationHandler.sendMessage(m);
+			}
 		} else { // isGPSTracking = true
 			if ((location.hasAccuracy() && location.getAccuracy()<30) || !location.hasAccuracy()) {
 				if (BigPlanet.isFollowMode) {

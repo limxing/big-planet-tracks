@@ -30,12 +30,14 @@
 	
 	<string name="track_menu_title">轨迹</string>
 	<string-array name="items_track_what_to_do_dialog">
+		<item>显示轨迹于地图</item>
 		<item>编辑轨迹</item>
 		<item>删除轨迹</item>
-		<item>检视统计资料</item>
-		<item>储存轨迹於SD卡</item>
+		<item>检视轨迹统计资料</item>
+		<item>储存轨迹于SD卡</item>
 	</string-array>
 	
+	<string name="go_to_track_fail">记录轨迹时无法使用此功能。</string>
 	<string name="sure_to_delete_track">您确定要删除此轨迹?</string>
 	<string name="no_stored_tracks">没有任何储存的轨迹</string>
 	<string name="fail">储存失败</string>

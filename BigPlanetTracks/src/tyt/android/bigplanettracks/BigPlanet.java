@@ -1546,14 +1546,16 @@ public class BigPlanet extends Activity {
 		}
 		String zoom = String.valueOf(17-zoomLevel);
 		int imageID = activity.getResources().getIdentifier("scale"+zoom, "drawable", activity.getPackageName());
-		if (density == 1) {
-			scaleImageView.setImageResource(imageID);
-		} else {
-			Bitmap bmp = BitmapFactory.decodeResource(activity.getResources(), imageID);
-			if (bmp != null)
-				scaleImageView.setImageBitmap(getScaledBitmap(bmp));
-			else
-				scaleImageView.setImageBitmap(null);
+		if (imageID != 0) {
+			if (density == 1) {
+				scaleImageView.setImageResource(imageID);
+			} else {
+				Bitmap bmp = BitmapFactory.decodeResource(activity.getResources(), imageID);
+				if (bmp != null)
+					scaleImageView.setImageBitmap(getScaledBitmap(bmp));
+				else
+					scaleImageView.setImageBitmap(null);
+			}
 		}
 	}
 	

@@ -30,12 +30,14 @@
 	
 	<string name="track_menu_title">This Track</string>
 	<string-array name="items_track_what_to_do_dialog">
+		<item>Go to track</item>
 		<item>Edit track</item>
 		<item>Delete track</item>
 		<item>View track statistics</item>
 		<item>Write to SD card...</item>
 	</string-array>
 	
+	<string name="go_to_track_fail">Cannot go to this track when recording a track.</string>
 	<string name="sure_to_delete_track">Are you sure to delete this track?</string>
 	<string name="no_stored_tracks">No existed tracks</string>
 	<string name="fail">Fail to store!</string>

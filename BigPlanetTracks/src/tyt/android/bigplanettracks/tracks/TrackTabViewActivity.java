@@ -494,35 +494,8 @@ public class TrackTabViewActivity extends TabActivity{
 		myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//				Log.i("TAG", "onItemClick id=" + id);
 				trackID = id;
-				
-				final ProgressDialog myProgressDialog = ProgressDialog.show(TrackTabViewActivity.this,	  
-						getString(R.string.drawing_track_progressdialog_title), getString(R.string.drawing_track_progressdialog_body), true);
-				
-				//Show this track on the map
-				locationList = getLocationListFromDB(trackID);
-				new Thread(){
-					public void run() {
-						try {
-							placeList = convertToPlaceList(locationList);
-							BigPlanet.addMarkersForDrawing(TrackTabViewActivity.this, placeList, 2);
-							finish();
-						} catch(Exception e) {
-							e.printStackTrace();
-						} finally {
-							myProgressDialog.dismiss();
-						}
-					}
-				}.start();
-				
-			}});
-		
-		myListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				onLongListItemClick(view, position, id);
-				return false;
+				alert_dialog_selection();
 			}});
 		
 		Cursor myCursor = BigPlanet.DBAdapter.getAllTracks();
@@ -585,11 +558,6 @@ public class TrackTabViewActivity extends TabActivity{
 		return myPlaceList;
 	}
 	
-	protected void onLongListItemClick(View v, int pos, long id) { 
-		TrackTabViewActivity.trackID = id;
-		alert_dialog_selection();
-	}
-	
 	private void alert_dialog_selection(){
 		new AlertDialog.Builder(TrackTabViewActivity.this)
 			.setTitle(getString(R.string.track_menu_title))
@@ -600,11 +568,36 @@ public class TrackTabViewActivity extends TabActivity{
 					switch (which)
 					{	
 						case 0:
+							if (!BigPlanet.isGPSTracking) {
+								final ProgressDialog myProgressDialog = ProgressDialog.show(TrackTabViewActivity.this,	  
+										getString(R.string.drawing_track_progressdialog_title), getString(R.string.drawing_track_progressdialog_body), true);
+								
+								// Show this track on the map
+								locationList = getLocationListFromDB(trackID);
+								new Thread(){
+									public void run() {
+										try {
+											placeList = convertToPlaceList(locationList);
+											BigPlanet.addMarkersForDrawing(TrackTabViewActivity.this, placeList, 2);
+											finish();
+										} catch(Exception e) {
+											e.printStackTrace();
+										} finally {
+											myProgressDialog.dismiss();
+										}
+									}
+								}.start();
+							} else {
+								Toast.makeText(TrackTabViewActivity.this, R.string.go_to_track_fail, Toast.LENGTH_SHORT).show();
+							}
+							break;
+
+						case 1:
 							// Edit this track
 							showDialog(EDIT_DIALOG);
 							break;
 							
-						case 1:
+						case 2:
 							// Delete this track
 							new AlertDialog.Builder(TrackTabViewActivity.this)
 							.setMessage(getString(R.string.sure_to_delete_track))
@@ -621,12 +614,12 @@ public class TrackTabViewActivity extends TabActivity{
 								}}).show();
 							break;
 							
-						case 2:
+						case 3:
 							// Get more information
 							showDialog(GET_INFORMATION_DIALOG);
 							break;
 							
-						case 3:
+						case 4:
 							// Save the track into SD card
 							final CharSequence strDialogTitle = getString(R.string.str_export_dialog_title);
 							final CharSequence strDialogBody = getString(R.string.str_export_dialog_body);
@@ -640,6 +633,7 @@ public class TrackTabViewActivity extends TabActivity{
 							gpxTrackWriter.setTrackID(trackID);
 							gpxTrackWriter.setHandler(trackListViewHandler);
 							gpxTrackWriter.saveToFile();
+							break;
 					}//end of switch
 				}
 			}
