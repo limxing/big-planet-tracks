@@ -307,7 +307,10 @@ public class PhysicMap {
 
 	private synchronized void updateMap() {
 		synchronized (SmoothZoomEngine.getInstance()) {
-			if (tileResolver.getLoaded() == totalCells || zoom > 13) {
+			int loadedTiles = tileResolver.getLoaded();
+			if (loadedTiles == totalCells || 
+					loadedTiles == totalCells/2 || 
+					loadedTiles == totalCells/3 || zoom > 13) {
 				if (inZoom != 0) {
 					System.out.println("inZoom " + inZoom);
 					globalOffset.x = (-1) * inZoom * (correctionX);

@@ -63,7 +63,10 @@ public class MyTimeUtils {
 		try {
 			millisecond = GMTTimeFormatter.parse(strGMTTime).getTime();
 		} catch (ParseException e) {
-			e.printStackTrace();
+			if (strGMTTime.length() > 0)
+				e.printStackTrace();
+			else
+				System.err.println(e.getMessage());
 		}
 		return millisecond;
 	}

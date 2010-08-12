@@ -61,8 +61,10 @@ public class BigPlanetTracks extends TabActivity implements OnTouchListener {
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			navControls.show();
+		if (BigPlanet.isGPSTracking == true) {
+			if (event.getAction() == MotionEvent.ACTION_DOWN) {
+				navControls.show();
+			}
 		}
 		return false;
 	}

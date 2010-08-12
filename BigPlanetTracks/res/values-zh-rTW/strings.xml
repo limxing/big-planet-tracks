@@ -77,22 +77,17 @@
 *星跡地圖* 是一款實用的線上, 離線地圖程式, 能匯入, 匯出與記錄 GPS 軌跡, 並即時顯示時間, 速度, 距離, 海拔等統計數據。\n
 \n
 Big Planet Tracks v2 系列\n
-(加強版離線地圖及 GPS 軌跡記錄)\n
+(加強版離線地圖及 GPS 軌跡記錄器)\n
 版權所有 © 2009-2010 開發者: tytung\n
 貢獻者: taiyuchen, dob711\n
 依據 GPLv3 授權條款釋出。\n
-\n
-Big Planet TW 1.6.8\n
-(加強版離線地圖) 2010年5月12日停止開發。\n
-版權所有 © 2009-2010 開發者: tytung\n
-依據 GPLv2 授權條款釋出。\n
 \n
 Big Planet 1.2.4\n
 (基礎版離線地圖) 2009年6月19日停止開發。\n
 版權所有 © 2009 開發者: hudvin\n
 依據 GPLv2 授權條款釋出。\n
 \n
-以上參與者保留所有的權利。\n
+保留所有的權利。\n
 詳情請看網站 \"Dr. TYT 的 Android 地圖\"。\n{url}
     </string>
     <string name="ABOUT_URL">http://android-map.blogspot.com</string>

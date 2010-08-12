@@ -111,6 +111,8 @@ public class TrackAnalyzer {
 		long firstTimePoint = firstLocation.getTime();
 		long lastTimePoint = lastLocation.getTime();
 		totalTime = lastTimePoint-firstTimePoint;
+		if (totalTime < 0)
+			totalTime = 0;
 	}
 	
 	private void computeTotalDistance() {
@@ -156,7 +158,10 @@ public class TrackAnalyzer {
 	}
 	
 	private void computeAverageSpeed() {
-		averageSpeed = (totalDistance / (totalTime/1000)) *3600/1000; // km/hr
+		if (totalTime > 0)
+			averageSpeed = (totalDistance / (totalTime/1000)) *3600/1000; // km/hr
+		else
+			averageSpeed = 0;
 	}
 	
 	private void computeMaximumSpeed() {

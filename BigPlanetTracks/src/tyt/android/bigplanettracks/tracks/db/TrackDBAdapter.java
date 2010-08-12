@@ -142,9 +142,12 @@ public class TrackDBAdapter {
 			trackID = db.insert(TRACKS_TABLE, null, cv);
 			
 			for (Location loc: locationList) {
+				String strGMTTime = "";
+				if (loc.getExtras() != null)
+					strGMTTime = loc.getExtras().getString(GMTTime);
 				cv = new ContentValues();
 				cv.put(FIELD_trackid, trackID);
-				cv.put(FIELD_time, loc.getExtras().getString(GMTTime));
+				cv.put(FIELD_time, strGMTTime);
 				cv.put(FIELD_latitude, loc.getLatitude());
 				cv.put(FIELD_longitude, loc.getLongitude());
 				cv.put(FIELD_altitude, loc.getAltitude());
