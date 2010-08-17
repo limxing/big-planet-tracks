@@ -111,6 +111,16 @@ public class MyLocationService extends Service implements LocationListener {
 		}
 	}
 	
+	private void moveMarker(Location location) {
+		//addMarker(location, PhysicMap.getZoomLevel());
+		Message m = locationHandler.obtainMessage(BigPlanet.MethodAddMarker, 0, 0, location);
+		locationHandler.sendMessage(m);
+		//mapControl.invalidate(); // not works if leaving activity and entering again
+		//mapControl.updateScreen(); // works
+		m = locationHandler.obtainMessage(BigPlanet.MethodUpdateScreen, 0, 0, null);
+		locationHandler.sendMessage(m);
+	}
+	
 	@Override
 	public void onLocationChanged(Location location) {
 //		String longitude = String.valueOf(location.getLongitude());
@@ -125,9 +135,7 @@ public class MyLocationService extends Service implements LocationListener {
 				Message m = locationHandler.obtainMessage(BigPlanet.MethodGoToMyLocation, 0, 0, location);
 				locationHandler.sendMessage(m);
 			} else {
-//				addMarker(location, PhysicMap.getZoomLevel());
-				Message m = locationHandler.obtainMessage(BigPlanet.MethodAddMarker, 0, 0, location);
-				locationHandler.sendMessage(m);
+				moveMarker(location);
 			}
 		} else { // isGPSTracking = true
 			if ((location.hasAccuracy() && location.getAccuracy()<30) || !location.hasAccuracy()) {
@@ -136,13 +144,7 @@ public class MyLocationService extends Service implements LocationListener {
 					Message m = locationHandler.obtainMessage(BigPlanet.MethodTrackMyLocation, 0, 0, location);
 					locationHandler.sendMessage(m);
 				} else {
-					//addMarker(location, PhysicMap.getZoomLevel());
-					Message m = locationHandler.obtainMessage(BigPlanet.MethodAddMarker, 0, 0, location);
-					locationHandler.sendMessage(m);
-					//mapControl.invalidate(); // not works if leaving activity and entering again
-					//mapControl.updateScreen(); // works
-					m = locationHandler.obtainMessage(BigPlanet.MethodUpdateScreen, 0, 0, null);
-					locationHandler.sendMessage(m);
+					moveMarker(location);
 				}
 			}
 		}

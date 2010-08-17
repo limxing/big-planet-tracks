@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="tyt.android.bigplanettracks"
 	android:versionCode="129"
-	android:versionName="2.1 beta 5">
+	android:versionName="2.1 beta 5a">
 
 	<application android:name="tyt.android.bigplanettracks.maps.BigPlanetApp" android:debuggable="true"
 		android:icon="@drawable/globe" android:label="@string/app_name">
