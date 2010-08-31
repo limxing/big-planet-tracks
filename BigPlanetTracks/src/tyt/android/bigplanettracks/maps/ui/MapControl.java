@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tyt.android.bigplanettracks.BigPlanet;
+import tyt.android.bigplanettracks.R;
 import tyt.android.bigplanettracks.maps.AbstractCommand;
 import tyt.android.bigplanettracks.maps.MarkerManager;
+import tyt.android.bigplanettracks.maps.MarkerManager.Marker;
 import tyt.android.bigplanettracks.maps.PhysicMap;
 import tyt.android.bigplanettracks.maps.RawTile;
-import tyt.android.bigplanettracks.maps.MarkerManager.Marker;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -18,6 +18,8 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -84,6 +86,10 @@ public class MapControl extends RelativeLayout {
 	
 	private List<Marker> markersTemp = new ArrayList<Marker>();
 
+	// MyTracks
+	private final Drawable arrow[] = new Drawable[18];
+	private final int arrowWidth, arrowHeight;
+	
 	/**
 	 * Constructor
 	 * 
@@ -99,6 +105,30 @@ public class MapControl extends RelativeLayout {
 		scalePoint.set(width / 2, height / 2);
 		this.markerManager = markerManager;
 		buildView(width, height, startTile);
+		
+		arrow[0] = context.getResources().getDrawable(R.drawable.arrow_0);
+		arrow[1] = context.getResources().getDrawable(R.drawable.arrow_20);
+		arrow[2] = context.getResources().getDrawable(R.drawable.arrow_40);
+		arrow[3] = context.getResources().getDrawable(R.drawable.arrow_60);
+		arrow[4] = context.getResources().getDrawable(R.drawable.arrow_80);
+		arrow[5] = context.getResources().getDrawable(R.drawable.arrow_100);
+		arrow[6] = context.getResources().getDrawable(R.drawable.arrow_120);
+		arrow[7] = context.getResources().getDrawable(R.drawable.arrow_140);
+		arrow[8] = context.getResources().getDrawable(R.drawable.arrow_160);
+		arrow[9] = context.getResources().getDrawable(R.drawable.arrow_180);
+		arrow[10] = context.getResources().getDrawable(R.drawable.arrow_200);
+		arrow[11] = context.getResources().getDrawable(R.drawable.arrow_220);
+		arrow[12] = context.getResources().getDrawable(R.drawable.arrow_240);
+		arrow[13] = context.getResources().getDrawable(R.drawable.arrow_260);
+		arrow[14] = context.getResources().getDrawable(R.drawable.arrow_280);
+		arrow[15] = context.getResources().getDrawable(R.drawable.arrow_300);
+		arrow[16] = context.getResources().getDrawable(R.drawable.arrow_320);
+		arrow[17] = context.getResources().getDrawable(R.drawable.arrow_340);
+		arrowWidth = arrow[BigPlanet.lastHeading].getIntrinsicWidth();
+		arrowHeight = arrow[BigPlanet.lastHeading].getIntrinsicHeight();
+		for (int i = 0; i <= 17; i++) {
+			arrow[i].setBounds(0, 0, arrowWidth, arrowHeight);
+		}
 		
 		final Handler updateControlsHandler = new Handler() {
 
@@ -355,13 +385,24 @@ public class MapControl extends RelativeLayout {
 							List<Marker> markers = markerManager.getMarkers(tileX, tileY, z);
 							
 							for (Marker marker : markers) {
-								cs.drawBitmap(marker.getMarkerImage().getImage(),
-										(i - 2) * TILE_SIZE	+ pmap.getGlobalOffset().x
-										+ (int) marker.getOffset().x
-										- marker.getMarkerImage().getOffsetX()*density, 
-										(j - 2) * TILE_SIZE + pmap.getGlobalOffset().y
-										+ (int) marker.getOffset().y
-										- marker.getMarkerImage().getOffsetY()*density, paint);
+								if (BigPlanet.currentLocation != null && BigPlanet.currentLocation.getSpeed()>0) {
+									Drawable drawable = arrow[BigPlanet.lastHeading];
+									cs.drawBitmap(((BitmapDrawable)drawable).getBitmap(),
+											(i - 2) * TILE_SIZE	+ pmap.getGlobalOffset().x
+											+ (int) marker.getOffset().x
+											- 15*density, 
+											(j - 2) * TILE_SIZE + pmap.getGlobalOffset().y
+											+ (int) marker.getOffset().y
+											- 26*density, paint);
+								} else {
+									cs.drawBitmap(marker.getMarkerImage().getImage(),
+											(i - 2) * TILE_SIZE	+ pmap.getGlobalOffset().x
+											+ (int) marker.getOffset().x
+											- marker.getMarkerImage().getOffsetX()*density, 
+											(j - 2) * TILE_SIZE + pmap.getGlobalOffset().y
+											+ (int) marker.getOffset().y
+											- marker.getMarkerImage().getOffsetY()*density, paint);
+								}
 							}
 						}
 					}

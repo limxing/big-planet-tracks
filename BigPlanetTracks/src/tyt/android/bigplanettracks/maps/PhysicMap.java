@@ -1,9 +1,6 @@
 package tyt.android.bigplanettracks.maps;
 
-import java.util.Random;
-
 import tyt.android.bigplanettracks.maps.geoutils.GeoUtils;
-import tyt.android.bigplanettracks.maps.storage.BitmapCacheWrapper;
 import tyt.android.bigplanettracks.maps.ui.MapControl;
 import tyt.android.bigplanettracks.maps.ui.SmoothZoomEngine;
 
@@ -15,8 +12,6 @@ import android.graphics.Point;
 public class PhysicMap {
 
 	private static final int TILE_SIZE = 256;
-
-	private static Random random = new Random();
 
 	private TileResolver tileResolver;
 
@@ -319,10 +314,6 @@ public class PhysicMap {
 					scaleFactor = 1;
 				}
 				updateScreenCommand.execute();
-				int r = random.nextInt(10);
-				if (r > 7) {
-					BitmapCacheWrapper.getInstance().gc();
-				}
 				SmoothZoomEngine.getInstance().nullScaleFactor();
 			}
 		}

@@ -6,6 +6,10 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.GeomagneticField;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -17,7 +21,7 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
-public class MyLocationService extends Service implements LocationListener {
+public class MyLocationService extends Service implements LocationListener, SensorEventListener {
 	
 	private NotificationManager mNotificationManager;
 	private WakeLock wakeLock;
@@ -25,11 +29,15 @@ public class MyLocationService extends Service implements LocationListener {
 	private long minTime; // ms
 	private float minDistance; // m
 	private Handler locationHandler;
+
+	private double variation; // Magnetic variation.
 	
 	public MyLocationService() {
 		minTime = BigPlanet.minTime;
 		minDistance = BigPlanet.minDistance;
 		locationHandler = BigPlanet.locationHandler;
+		if (BigPlanet.currentLocation != null)
+			setVariation(BigPlanet.currentLocation);
 	}
 	
 	@Override
@@ -126,6 +134,11 @@ public class MyLocationService extends Service implements LocationListener {
 //		String longitude = String.valueOf(location.getLongitude());
 //		String latitude = String.valueOf(location.getLatitude());
 //		Log.i("Location", location.getProvider()+" onLocationChanged(): latitude="+latitude+", longitude="+longitude);
+		// Recalculate the variation if there was a jump in location > 1km:
+		if (BigPlanet.currentLocation == null
+				|| location.distanceTo(BigPlanet.currentLocation) > 1000) {
+			setVariation(location);
+		}
 		BigPlanet.currentLocation = location;
 		BigPlanet.inHome = true;
 		BigPlanet.isMapInCenter = false;
@@ -198,6 +211,39 @@ public class MyLocationService extends Service implements LocationListener {
 		if (BigPlanet.titleHandler != null) {
 			Message m = BigPlanet.titleHandler.obtainMessage(BigPlanetTracks.SetTitle, 0, 0, title);
 			BigPlanet.titleHandler.sendMessage(m);
+		}
+	}
+	
+	private void setVariation(Location location) {
+		long timestamp = location.getTime();
+		if (timestamp == 0) {
+			// Hack for Samsung phones which don't populate the time field
+			timestamp = System.currentTimeMillis();
+		}
+
+		GeomagneticField field = new GeomagneticField(
+				(float) location.getLatitude(),
+				(float) location.getLongitude(),
+				(float) location.getAltitude(), timestamp);
+		variation = field.getDeclination();
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// do nothing
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		synchronized (this) {
+			float magneticHeading = event.values[0];
+			double heading = magneticHeading + variation;
+			if (BigPlanet.setHeading((float) heading)) {
+				//mapControl.invalidate(); // not works if leaving activity and entering again
+				//mapControl.updateScreen(); // works
+				Message m = locationHandler.obtainMessage(BigPlanet.MethodUpdateScreen, 0, 0, null);
+				locationHandler.sendMessage(m);
+			}
 		}
 	}
 	

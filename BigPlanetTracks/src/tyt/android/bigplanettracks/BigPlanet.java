@@ -103,7 +103,7 @@ public class BigPlanet extends Activity {
 	private static MarkerManager mm;
 
 	protected static LocationManager locationManager;
-	protected static Location currentLocation;
+	public static Location currentLocation;
 	public static Location currentLocationBeforeRecording;
 	public static long recordingTime;
 	protected static String locationProvider = null;
@@ -244,11 +244,11 @@ public class BigPlanet extends Activity {
 			
 			initializeMap();
 			
-			/* Create a ImageView with a auto-follow icon. */
+			/* Create an ImageView with a auto-follow icon. */
 			mapControl.addView(mAutoFollowRelativeLayout); // We can just run it once.
-			/* Create a ImageView with a Track icon. */
+			/* Create an ImageView with a Track icon. */
 			mapControl.addView(mTrackRelativeLayout); // We can just run it once.
-			/* Create a ImageView with a scale image. */
+			/* Create an ImageView with a scale image. */
 			scaleImageView = new ImageView(this);
 			scaleImageView.setImageResource(R.drawable.scale1);
 			mapControl.addView(scaleImageView);
@@ -293,7 +293,7 @@ public class BigPlanet extends Activity {
 	private RelativeLayout getAutoFollowRelativeLayout() {
 		final RelativeLayout relativeLayout = new RelativeLayout(this);
 		
-		/* Create a ImageView with a auto-follow icon. */
+		/* Create an ImageView with a auto-follow icon. */
 		final ImageView ivAutoFollow = new ImageView(this);
 		ivAutoFollow.setImageResource(R.drawable.autofollow);
 		
@@ -1578,6 +1578,28 @@ public class BigPlanet extends Activity {
 			scaledBitmap = scaledBmp;
 		}
 		return scaledBitmap;
+	}
+
+	public static int lastHeading = 0;
+
+	/**
+	 * Sets the pointer heading in degrees (will be drawn on next invalidate).
+	 * 
+	 * @return true if the visible heading changed (i.e. a redraw of pointer is
+	 *         potentially necessary)
+	 */
+	protected static boolean setHeading(float heading) {
+		int newhdg = Math.round(-heading / 360 * 18 + 180);
+		while (newhdg < 0)
+			newhdg += 18;
+		while (newhdg > 17)
+			newhdg -= 18;
+		if (newhdg != lastHeading) {
+			lastHeading = newhdg;
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }
