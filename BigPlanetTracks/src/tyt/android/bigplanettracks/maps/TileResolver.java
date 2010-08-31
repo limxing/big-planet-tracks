@@ -64,15 +64,13 @@ public class TileResolver {
 					throw new IllegalStateException();
 				}
 				if (bitmap != null) { // если тайл есть в файловом кеше
-					if (tile.s == strategyId
-							&& tile.z == PhysicMap.getZoomLevel()) {
-						loaded++;
-					}
+					loaded++;
 					cacheProvider.putToCache(tile, bitmap);
 					updateMap(tile, bitmap);
 				} else { // если тайла нет в файловом кеше
 					bitmap = cacheProvider.getScaledTile(tile);
 					if (bitmap == null) {
+						loaded++;
 						TileScaler.get(tile, scaledHandler);
 						//new Thread(new TileScaler(tile, scaledHandler)).start();
 					} else { // скалированый тайл из кеша
@@ -132,7 +130,7 @@ public class TileResolver {
 				//updateMap(tile, bitmap);
 			//}
 			//updateMap(tile, MapControl.CELL_BACKGROUND);
-			 LocalStorageWrapper.get(tile,localLoaderHandler);
+			LocalStorageWrapper.get(tile, localLoaderHandler);
 		}
 	}
 

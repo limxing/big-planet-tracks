@@ -109,7 +109,7 @@ public class PhysicMap {
 	public synchronized void update(Bitmap bitmap, RawTile tile) {
 		synchronized (SmoothZoomEngine.getInstance()) {
 //			System.out.println("tileZ " + tile.z +" " + zoom) ;
-			if(tile.z != zoom){
+			if (tile.z != zoom) {
 				System.out.println("tileZ != zoom");
 			}
 			if (!inMove && tile.z == zoom) {
@@ -165,7 +165,7 @@ public class PhysicMap {
 	}
 
 	public void zoom(int x, int y, int z) {
-		tileResolver.gcCache();
+//		tileResolver.gcCache();
 		reload(x, y, z);
 	}
 
@@ -214,7 +214,7 @@ public class PhysicMap {
 			nextZoomY = nextZoomY - offsetY;
 
 			// obtaining angular tile
-			int tileX = (nextZoomX / TILE_SIZE);
+			int tileX = nextZoomX / TILE_SIZE;
 			int tileY = nextZoomY / TILE_SIZE;
 
 			// indentation is always one point - to be located in the center of the screen
@@ -303,9 +303,7 @@ public class PhysicMap {
 	private synchronized void updateMap() {
 		synchronized (SmoothZoomEngine.getInstance()) {
 			int loadedTiles = tileResolver.getLoaded();
-			if (loadedTiles == totalCells || 
-					loadedTiles == totalCells/2 || 
-					loadedTiles == totalCells/3 || zoom > 13) {
+			if (loadedTiles >= totalCells) {
 				if (inZoom != 0) {
 					System.out.println("inZoom " + inZoom);
 					globalOffset.x = (-1) * inZoom * (correctionX);
