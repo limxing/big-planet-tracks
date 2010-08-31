@@ -382,28 +382,32 @@ public class BigPlanet extends Activity {
 				}
 			}
 		} else {
-			// a dialog to make sure that user wants to stop recording
-			new AlertDialog.Builder(BigPlanet.this).setTitle(R.string.stop_tracking)
-			.setPositiveButton(
-					R.string.YES_LABEL,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-							stopTracking();
-						}
-					})
-			.setNeutralButton(
-					R.string.NO_LABEL,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-						}
-					})
-			.show();
+			if (MarkerManager.getLocationList(MarkerManager.savedTrackG).size()>1) {
+				// a dialog to make sure that user wants to finish recording
+				new AlertDialog.Builder(BigPlanet.this).setTitle(R.string.finish_tracking)
+				.setPositiveButton(
+						R.string.YES_LABEL,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int whichButton) {
+								finishTracking();
+							}
+						})
+				.setNeutralButton(
+						R.string.NO_LABEL,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int whichButton) {
+							}
+						})
+				.show();
+			} else {
+				finishTracking();
+			}
 		}
 	}
 
-	private void stopTracking() {
+	private void finishTracking() {
 		isGPSTracking = false;
 		ivRecordTrack.setImageResource(R.drawable.btn_record_start);
 		disabledTrack(BigPlanet.this);

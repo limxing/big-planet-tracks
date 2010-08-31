@@ -30,7 +30,7 @@
     <string name="auto_follow_disabled">Auto-Follow Disabled</string>
     <string name="auto_follow_enabled">Auto-Follow Enabled</string>
     <string name="track_enabled">Start tracking</string>
-    <string name="stop_tracking">Stop tracking ?</string>
+    <string name="finish_tracking">Finish tracking ?</string>
     <string name="MY_LOCATION_MENU">My Location</string>
     <string name="SEARCH_MENU">Search</string>
     <string name="ABOUT_MENU">About</string>
