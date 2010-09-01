@@ -190,7 +190,9 @@ public class MarkerManager {
 	
 	public void saveMarkerGTrack() {
 		savedTrackG.clear();
-		savedTrackG.addAll(markersG);
+		for (int i=0; i<markersG.size(); i++) {
+			savedTrackG.add(markersG.remove(i));
+		}
 		markersG.clear();
 	}
 	

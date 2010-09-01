@@ -10,6 +10,7 @@ import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -24,6 +25,7 @@ import android.util.Log;
 public class MyLocationService extends Service implements LocationListener, SensorEventListener {
 	
 	private NotificationManager mNotificationManager;
+	private SensorManager mSensorManager;
 	private WakeLock wakeLock;
 	
 	private long minTime; // ms
@@ -36,10 +38,8 @@ public class MyLocationService extends Service implements LocationListener, Sens
 		minTime = BigPlanet.minTime;
 		minDistance = BigPlanet.minDistance;
 		locationHandler = BigPlanet.locationHandler;
-		if (BigPlanet.currentLocation != null)
-			setVariation(BigPlanet.currentLocation);
 	}
-	
+		
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -69,6 +69,28 @@ public class MyLocationService extends Service implements LocationListener, Sens
 		Log.d("MyLocationService", "Service: onDestroy()");
 		clearNotification();
 		releaseWakeLock();
+	}
+	
+	public void registerSensor(Context context) {
+		if (BigPlanet.currentLocation != null)
+			setVariation(BigPlanet.currentLocation);
+		
+		mSensorManager = (SensorManager)context.getSystemService(SENSOR_SERVICE);
+		if (mSensorManager != null) {
+			Sensor compass = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+			if (compass != null) {
+				mSensorManager.registerListener(this, compass, SensorManager.SENSOR_DELAY_UI);
+//				Log.d("MyLocationService", "SensorManager.registerListener()");
+			}
+		}
+	}
+
+	protected void unregisterSensor() {
+		if (mSensorManager != null) {
+			mSensorManager.unregisterListener(this);
+			mSensorManager = null;
+//			Log.d("MyLocationService", "SensorManager.unregisterListener()");
+		}
 	}
 	
 	@Override
@@ -141,7 +163,7 @@ public class MyLocationService extends Service implements LocationListener, Sens
 		}
 		BigPlanet.currentLocation = location;
 		BigPlanet.inHome = true;
-		BigPlanet.isMapInCenter = false;
+//		BigPlanet.isMapInCenter = false;
 		if (!BigPlanet.isGPSTracking) {
 			if (BigPlanet.isFollowMode) {
 				//goToMyLocation(location, PhysicMap.getZoomLevel());
@@ -226,6 +248,8 @@ public class MyLocationService extends Service implements LocationListener, Sens
 				(float) location.getLongitude(),
 				(float) location.getAltitude(), timestamp);
 		variation = field.getDeclination();
+		
+//		Log.d("MyLocationService", "Variation reset to " + variation + " degrees.");
 	}
 
 	@Override

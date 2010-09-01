@@ -55,7 +55,6 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Proxy;
 import android.net.Uri;
@@ -382,7 +381,7 @@ public class BigPlanet extends Activity {
 				}
 			}
 		} else {
-			if (MarkerManager.getLocationList(MarkerManager.savedTrackG).size()>1) {
+			if (MarkerManager.getLocationList(MarkerManager.markersG).size()>1) {
 				// a dialog to make sure that user wants to finish recording
 				new AlertDialog.Builder(BigPlanet.this).setTitle(R.string.finish_tracking)
 				.setPositiveButton(
@@ -857,6 +856,7 @@ public class BigPlanet extends Activity {
 		/* GPS_PROVIDER */
 		if (gpsLocationListener == null) {
 			gpsLocationListener = new MyLocationService();
+			gpsLocationListener.registerSensor(this);
 			// LocationManager.GPS_PROVIDER = "gps"
 			provider = LocationManager.GPS_PROVIDER;
 			locationManager.requestLocationUpdates(provider, minTime, minDistance, gpsLocationListener);
@@ -866,6 +866,7 @@ public class BigPlanet extends Activity {
 		/* NETWORK_PROVIDER */
 		if (networkLocationListener == null) {
 			networkLocationListener = new MyLocationService();
+			networkLocationListener.registerSensor(this);
 			// LocationManager.NETWORK_PROVIDER = "network"
 			provider = LocationManager.NETWORK_PROVIDER;
 			locationManager.requestLocationUpdates(provider, minTime, minDistance, networkLocationListener);
@@ -878,10 +879,14 @@ public class BigPlanet extends Activity {
 			public void run() {
 				if (!isGPSTracking) {
 					if (locationManager != null) {
-						if (networkLocationListener != null)
+						if (networkLocationListener != null) {
+							networkLocationListener.unregisterSensor();
 							locationManager.removeUpdates(networkLocationListener);
-						if (gpsLocationListener != null)
+						}
+						if (gpsLocationListener != null) {
+							gpsLocationListener.unregisterSensor();
 							locationManager.removeUpdates(gpsLocationListener);
+						}
 						
 						networkLocationListener = null;
 						gpsLocationListener = null;
@@ -892,8 +897,8 @@ public class BigPlanet extends Activity {
 		}.start();
 	}
 	
-	protected static LocationListener gpsLocationListener;
-	protected static LocationListener networkLocationListener;
+	protected static MyLocationService gpsLocationListener;
+	protected static MyLocationService networkLocationListener;
 	protected final static long minTime = 2000; // ms
 	protected final static float minDistance = 5; // m
 	
