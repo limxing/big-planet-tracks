@@ -1,8 +1,5 @@
 package tyt.android.bigplanettracks.maps;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import tyt.android.bigplanettracks.maps.storage.BitmapCacheWrapper;
 import tyt.android.bigplanettracks.maps.storage.LocalStorageWrapper;
 
@@ -17,16 +14,9 @@ import android.graphics.Bitmap.Config;
  */
 public class TileScaler{
 
-	private static ExecutorService mThreadPool = Executors.newFixedThreadPool(5);;
-
 	public static void get(final RawTile tile, final Handler handler){
-		mThreadPool.execute(new Runnable() {
-			@Override
-			public void run() {
-				Bitmap bitmap = getScaler(tile).scale();
-				handler.handle(tile, bitmap, true);
-			}
-		});
+		Bitmap bitmap = getScaler(tile).scale();
+		handler.handle(tile, bitmap, true);
 	}
 
 	public static Bitmap get(final RawTile tile){
@@ -89,10 +79,11 @@ public class TileScaler{
 				RawTile tmpTile = new RawTile(parentTileX,
 						parentTileY, tmpZ, s);
 				
-				if(bitmap==null){
-					bitmap =  BitmapCacheWrapper.getInstance().getTile(tmpTile);	
+				if (bitmap == null) {
+					bitmap = BitmapCacheWrapper.getInstance().getTile(tmpTile);	
 				}
-				if(bitmap==null){
+				
+				if (bitmap == null) {
 					bitmap = LocalStorageWrapper.get(tmpTile);
 				}
 				

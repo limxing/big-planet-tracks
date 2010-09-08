@@ -39,10 +39,9 @@ public class ExpiredHashMap {
 	}
 
 	public synchronized Bitmap get(RawTile tile) {
-		Bitmap bmp = expCacheMap.get(tile);
+		Bitmap bmp = expCacheMap.remove(tile);
 		if (bmp != null) {
-			expCacheMap.put(new ExpRawTile(tile, System.currentTimeMillis()),
-					bmp);
+			expCacheMap.put(new ExpRawTile(tile, System.currentTimeMillis()), bmp);
 		}
 		return bmp;
 	}
@@ -50,7 +49,7 @@ public class ExpiredHashMap {
 	/**
 	 * Удаляет определенную часть самых старых элементов в кеше
 	 */
-	public void gc() {
+	public synchronized void gc() {
 		if (expCacheMap.size() >= maxSize) {
 			Iterator<ExpRawTile> it = expCacheMap.keySet().iterator();
 			List<ExpRawTile> listToSort = new ArrayList<ExpRawTile>();
@@ -58,7 +57,7 @@ public class ExpiredHashMap {
 				listToSort.add(it.next());
 			}
 			Collections.sort(listToSort);
-			for (int i = 0; i < expCacheMap.size() / 2; i++) {
+			for (int i = 0; i < expCacheMap.size() / 5; i++) {
 				expCacheMap.remove(listToSort.get(i));
 			}
 			Log.i("CACHE", "clean");

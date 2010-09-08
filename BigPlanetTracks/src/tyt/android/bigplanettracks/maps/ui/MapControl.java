@@ -22,7 +22,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,6 +84,8 @@ public class MapControl extends RelativeLayout {
 	private int minZoomFromDB = 10; // (tile.Zoom = 17-10 = 7)
 	
 	private List<Marker> markersTemp = new ArrayList<Marker>();
+
+	private long touchTime = 0;
 
 	// MyTracks
 	private final Drawable arrow[] = new Drawable[18];
@@ -237,7 +238,7 @@ public class MapControl extends RelativeLayout {
 			// обработчик уменьшения
 			zoomPanel.setOnZoomOutClickListener(new OnClickListener() {
 				public void onClick(View v) {
-					Log.i("MapControl", "OnZoomOutClick");
+//					Log.i("MapControl", "OnZoomOutClick");
 					BigPlanet.isMapInCenter = false;
 					int zoomLevel = PhysicMap.getZoomLevel();
 					if (zoomLevel >= 17) {
@@ -252,7 +253,7 @@ public class MapControl extends RelativeLayout {
 			// обработчик увеличения
 			zoomPanel.setOnZoomInClickListener(new OnClickListener() {
 				public void onClick(View v) {
-					Log.i("MapControl", "OnZoomInClick");
+//					Log.i("MapControl", "OnZoomInClick");
 					BigPlanet.isMapInCenter = false;
 					int zoomLevel = PhysicMap.getZoomLevel();
 					if (zoomLevel <= -2) {
@@ -314,7 +315,6 @@ public class MapControl extends RelativeLayout {
 	 * зума
 	 */
 	public void updateZoomControls() {
-		pmap.getTileResolver().clearCache();
 		int zoomLevel = PhysicMap.getZoomLevel();
 		markerManager.updateAll(zoomLevel);
 		if (getMapMode() == MapControl.SELECT_MODE) {
@@ -348,8 +348,8 @@ public class MapControl extends RelativeLayout {
 		}
 //		System.out.println("doDraw scaleFactor " + pmap.scaleFactor);
 		Bitmap tmpBitmap;
-		for (int i = 2; i < pmap.cells.length+2; i++) {
-			for (int j = 2; j < pmap.cells[0].length+2; j++) {
+		for (int i = 0; i < pmap.cells.length+4; i++) {
+			for (int j = 0; j < pmap.cells[0].length+4; j++) {
 				if ((i > 1 && i < pmap.cells.length+2) && ((j > 1 && j < pmap.cells[0].length+2))) {
 					tmpBitmap = pmap.getCell(i - 2, j - 2);
 					if (tmpBitmap != null) {
@@ -385,22 +385,22 @@ public class MapControl extends RelativeLayout {
 							List<Marker> markers = markerManager.getMarkers(tileX, tileY, z);
 							
 							for (Marker marker : markers) {
-								if (BigPlanet.currentLocation != null && BigPlanet.currentLocation.getSpeed()>0) {
+								if (BigPlanet.currentLocation != null) {
 									Drawable drawable = arrow[BigPlanet.lastHeading];
 									cs.drawBitmap(((BitmapDrawable)drawable).getBitmap(),
 											(i - 2) * TILE_SIZE	+ pmap.getGlobalOffset().x
-											+ (int) marker.getOffset().x
-											- 15*density, 
+											+ (float) marker.getOffset().x
+											- (drawable.getMinimumWidth()/2)*density, 
 											(j - 2) * TILE_SIZE + pmap.getGlobalOffset().y
-											+ (int) marker.getOffset().y
-											- 26*density, paint);
+											+ (float) marker.getOffset().y
+											- (drawable.getMinimumHeight()/2)*density, paint);
 								} else {
 									cs.drawBitmap(marker.getMarkerImage().getImage(),
 											(i - 2) * TILE_SIZE	+ pmap.getGlobalOffset().x
-											+ (int) marker.getOffset().x
+											+ (float) marker.getOffset().x
 											- marker.getMarkerImage().getOffsetX()*density, 
 											(j - 2) * TILE_SIZE + pmap.getGlobalOffset().y
-											+ (int) marker.getOffset().y
+											+ (float) marker.getOffset().y
 											- marker.getMarkerImage().getOffsetY()*density, paint);
 								}
 							}
@@ -408,7 +408,7 @@ public class MapControl extends RelativeLayout {
 					}
 				}
 			}
-		}
+		} // end if (pmap.scaleFactor == 1)
 
 		int paintColor[] = new int[] {
 				Color.RED,
@@ -444,7 +444,7 @@ public class MapControl extends RelativeLayout {
 			}
 		}
 		
-		if (isDrawing) {
+		if (isDrawing && pmap.scaleFactor == 1) {
 			for (int m = 0; m < allMarkerList.size(); m++) {
 				if (isDrawingMarkerG[m]) {
 					float x1 = 0, x2 = 0, y1 = 0, y2 = 0, startPointX = 0, startPointY = 0;
@@ -507,8 +507,8 @@ public class MapControl extends RelativeLayout {
 			}
 		}
 		Matrix matr = new Matrix();
-		matr.postScale((float) pmap.scaleFactor, (float) pmap.scaleFactor, scalePoint.x, scalePoint.y);
-		c.drawColor(BitmapUtils.BACKGROUND_COLOR);
+//		matr.postScale((float) pmap.scaleFactor, (float) pmap.scaleFactor, scalePoint.x, scalePoint.y);
+//		c.drawColor(BitmapUtils.BACKGROUND_COLOR);
 		c.drawBitmap(cb, matr, paint);
 	}
 
@@ -630,8 +630,6 @@ public class MapControl extends RelativeLayout {
 			}
 		}
 		
-		long touchTime = 0;
-
 		/**
 		 * Обработка касаний
 		 */
@@ -640,7 +638,7 @@ public class MapControl extends RelativeLayout {
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				pmap.inMove = false;
-				touchTime = System.currentTimeMillis();
+//				touchTime = System.currentTimeMillis();
 //				System.out.println("touchTime " + touchTime);
 				pmap.getNextMovePoint().set((int) event.getX(), (int) event.getY());
 				break;
@@ -654,7 +652,7 @@ public class MapControl extends RelativeLayout {
 				}
 				// for Auto-Follow
 				BigPlanet.disabledAutoFollow(MapControl.this.context);
-				if (pmap.inMove && diff>50) {
+				if (pmap.inMove && diff>500) {
 					touchTime = now;
 //					System.out.println("diff " + diff);
 					pmap.inMove = false;

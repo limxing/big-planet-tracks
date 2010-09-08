@@ -1,5 +1,6 @@
 package tyt.android.bigplanettracks.maps.storage;
 
+import tyt.android.bigplanettracks.BigPlanet;
 import tyt.android.bigplanettracks.maps.RawTile;
 
 import android.graphics.Bitmap;
@@ -15,10 +16,10 @@ public class BitmapCacheWrapper {
 	/*
 	 * размер кеша (для каждого обоих типов)
 	 */
-	public final static int CACHE_SIZE = 20;
+	public final static int CACHE_SIZE = (int) (50*BigPlanet.density);
 	private BitmapCache cache = new BitmapCache(CACHE_SIZE);
 
-	private BitmapCache scaledCache = new BitmapCache(20);
+	private BitmapCache scaledCache = new BitmapCache(CACHE_SIZE);
 
 	private static BitmapCacheWrapper instance;
 	
@@ -64,14 +65,9 @@ public class BitmapCacheWrapper {
 	 * Помещает битмап в кеш тайлов
 	 */
 	public void putToCache(RawTile tile, Bitmap bitmap) {
-	cache.put(tile, bitmap);
+		cache.put(tile, bitmap);
 	}
 	
-	public void gc(){
-		scaledCache.gc();
-		cache.gc();
-	}
-
 	public void clear() {
 		scaledCache.clear();
 		cache.clear();

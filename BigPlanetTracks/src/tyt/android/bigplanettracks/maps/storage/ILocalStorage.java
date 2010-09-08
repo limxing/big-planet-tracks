@@ -1,9 +1,6 @@
 package tyt.android.bigplanettracks.maps.storage;
 
-import java.io.BufferedInputStream;
-
 import tyt.android.bigplanettracks.maps.RawTile;
-
 
 public interface ILocalStorage {
 
@@ -31,6 +28,6 @@ public interface ILocalStorage {
 	 *            параметры тайла
 	 * @return тайл
 	 */
-	public abstract BufferedInputStream get(RawTile tile);
+	public abstract byte[] get(RawTile tile);
 
 }

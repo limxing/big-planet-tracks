@@ -172,9 +172,6 @@ public class BigPlanet extends Activity {
 			public void handleMessage(Message msg) {
 				Location location = (Location) msg.obj;
 				switch (msg.what) {
-				case MethodStartGPSLocationListener:
-					startGPSLocationListener();
-					break;
 				case MethodGoToMyLocation:
 					goToMyLocation(location, PhysicMap.getZoomLevel());
 					break;
@@ -281,6 +278,9 @@ public class BigPlanet extends Activity {
 	public void enabledAutoFollow(Context context) {
 		if (!isFollowMode) {
 			Toast.makeText(context, R.string.auto_follow_enabled, Toast.LENGTH_SHORT).show();
+			if (mAutoFollowRelativeLayout == null) {
+				mAutoFollowRelativeLayout = getAutoFollowRelativeLayout();
+			}
 			mAutoFollowRelativeLayout.setVisibility(View.INVISIBLE);
 			if (currentLocation != null)
 				goToMyLocation(currentLocation, PhysicMap.getZoomLevel());
@@ -900,7 +900,7 @@ public class BigPlanet extends Activity {
 	protected static MyLocationService gpsLocationListener;
 	protected static MyLocationService networkLocationListener;
 	protected final static long minTime = 2000; // ms
-	protected final static float minDistance = 5; // m
+	protected final static float minDistance = 10; // m
 	
 	private void followMyLocation() {
 		if (!isFollowMode) {
@@ -940,10 +940,6 @@ public class BigPlanet extends Activity {
 		place.setLat(latFix);
 		place.setLon(lonFix);
 		place.setLocation(location);
-		
-//		SimpleDateFormat LocalDateTimeFormatter = new SimpleDateFormat("yyyy.MM.dd G 'at' hh:mm:ss a zzz");
-//		List<String> items = new ArrayList<String>();
-//		items.add(LocalDateTimeFormatter.format(time));
 		mm.addMarker(place, zoom, MarkerManager.DrawMarkerOrTrack, MarkerManager.MY_LOCATION_MARKER);
 	}
 	
@@ -1553,21 +1549,26 @@ public class BigPlanet extends Activity {
 			scaledBitmapZoomLevel = zoomLevel;
 			scaledBitmap = null;
 		}
-		String zoom = String.valueOf(17-zoomLevel);
-		int imageID = activity.getResources().getIdentifier("scale"+zoom, "drawable", activity.getPackageName());
+		StringBuffer zoom = new StringBuffer();
+		zoom.append("scale").append(String.valueOf(17-zoomLevel));
+		int imageID = activity.getResources().getIdentifier(zoom.toString(), "drawable", activity.getPackageName());
 		if (imageID != 0) {
 			if (density == 1) {
 				scaleImageView.setImageResource(imageID);
 			} else {
-				Bitmap bmp = BitmapFactory.decodeResource(activity.getResources(), imageID);
-				if (bmp != null)
-					scaleImageView.setImageBitmap(getScaledBitmap(bmp));
-				else
-					scaleImageView.setImageBitmap(null);
+				try {
+					zoomBitmap = BitmapFactory.decodeResource(activity.getResources(), imageID);
+					if (zoomBitmap != null)
+						scaleImageView.setImageBitmap(getScaledBitmap(zoomBitmap));
+					else
+						scaleImageView.setImageBitmap(null);
+				} catch (Exception e) {
+				}
 			}
 		}
 	}
 	
+	private static Bitmap zoomBitmap = null;	
 	private static Bitmap scaledBitmap = null;
 	private static int scaledBitmapZoomLevel = -9;
 	

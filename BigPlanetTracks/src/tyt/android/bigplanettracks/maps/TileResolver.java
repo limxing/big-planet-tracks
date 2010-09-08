@@ -5,8 +5,10 @@ import tyt.android.bigplanettracks.maps.providers.MapStrategy;
 import tyt.android.bigplanettracks.maps.providers.MapStrategyFactory;
 import tyt.android.bigplanettracks.maps.storage.BitmapCacheWrapper;
 import tyt.android.bigplanettracks.maps.storage.LocalStorageWrapper;
+import tyt.android.bigplanettracks.maps.ui.MapControl;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 public class TileResolver {
 
@@ -16,7 +18,7 @@ public class TileResolver {
 
 	private BitmapCacheWrapper cacheProvider = BitmapCacheWrapper.getInstance();
 
-	private Handler scaledHandler;
+	protected Handler scaledHandler;
 
 	private Handler localLoaderHandler;
 
@@ -32,7 +34,7 @@ public class TileResolver {
 					@Override
 					public void handle(RawTile tile, byte[] data) {
 						LocalStorageWrapper.put(tile, data);
-						Bitmap bmp = LocalStorageWrapper.get(tile);
+						Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
 						cacheProvider.putToCache(tile, bmp);
 						updateMap(tile, bmp);
 					}
@@ -71,7 +73,8 @@ public class TileResolver {
 					bitmap = cacheProvider.getScaledTile(tile);
 					if (bitmap == null) {
 						loaded++;
-						TileScaler.get(tile, scaledHandler);
+						updateMap(tile, MapControl.CELL_BACKGROUND);
+//						TileScaler.get(tile, scaledHandler);
 						//new Thread(new TileScaler(tile, scaledHandler)).start();
 					} else { // скалированый тайл из кеша
 						loaded++;
@@ -124,12 +127,13 @@ public class TileResolver {
 			loaded++;
 			updateMap(tile, bitmap);
 		} else {
-			//bitmap = LocalStorageWrapper.get(tile);
-			//if (bitmap != null) {
-			//	loaded++;
-				//updateMap(tile, bitmap);
-			//}
-			//updateMap(tile, MapControl.CELL_BACKGROUND);
+//			loaded++;
+//			bitmap = LocalStorageWrapper.get(tile);
+//			if (bitmap != null) {
+//				updateMap(tile, bitmap);
+//			} else {
+//				updateMap(tile, MapControl.CELL_BACKGROUND);
+//			}
 			LocalStorageWrapper.get(tile, localLoaderHandler);
 		}
 	}
@@ -143,10 +147,6 @@ public class TileResolver {
 
 	public void clearCache() {
 		cacheProvider.clear();
-	}
-
-	public void gcCache() {
-		cacheProvider.gc();
 	}
 
 	public int getMapSourceId() {

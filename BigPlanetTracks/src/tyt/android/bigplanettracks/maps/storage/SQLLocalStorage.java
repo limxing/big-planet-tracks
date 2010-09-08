@@ -1,8 +1,5 @@
 package tyt.android.bigplanettracks.maps.storage;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-
 import tyt.android.bigplanettracks.maps.Preferences;
 import tyt.android.bigplanettracks.maps.RawTile;
 
@@ -81,7 +78,8 @@ public class SQLLocalStorage implements ILocalStorage {
 		db.execSQL(SQLLocalStorage.DELETE_SQL);
 	}
 
-	public BufferedInputStream get(RawTile tile) {
+	public byte[] get(RawTile tile) {
+		byte[] data = null;
 		String sql = SQLLocalStorage.GET_SQL;
 
 		Cursor c = db.rawQuery(sql, 
@@ -91,14 +89,12 @@ public class SQLLocalStorage implements ILocalStorage {
 				String.valueOf(tile.z),
 				String.valueOf(tile.s), });
 
-		BufferedInputStream io = null;
 		if (c.getCount() != 0) {
 			c.moveToFirst();
-			byte[] d = c.getBlob(c.getColumnIndex(SQLLocalStorage.IMAGE_COLUMN));
-			io = new BufferedInputStream(new ByteArrayInputStream(d), 4096);
+			data = c.getBlob(c.getColumnIndex(SQLLocalStorage.IMAGE_COLUMN));
 		}
 		c.close();
-		return io;
+		return data;
 	}
 
 	public boolean isExists(RawTile tile) {

@@ -12,7 +12,7 @@ public class SmoothZoomEngine {
 	
 	private LinkedList<Integer> scaleQueue = new LinkedList<Integer>();
 
-	private Float scaleFactor = 1000f;
+	private volatile Float scaleFactor = 1000f;
 
 	private AbstractCommand updateScreen;
 
@@ -72,8 +72,9 @@ public class SmoothZoomEngine {
 									synchronized (scaleFactor) {
 										do {
 											try {
-												Thread.sleep(5);
-												scaleFactor = scaleFactor + (scaleDirection) * 25;
+//												Thread.sleep(5);
+//												scaleFactor = scaleFactor + (scaleDirection) * 25;
+												scaleFactor = (float) endScaleFactor;
 												updateScreen.execute(new Float(scaleFactor / 1000));
 											} catch (Exception e) {
 												e.printStackTrace();
