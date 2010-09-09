@@ -390,10 +390,10 @@ public class MapControl extends RelativeLayout {
 									cs.drawBitmap(((BitmapDrawable)drawable).getBitmap(),
 											(i - 2) * TILE_SIZE	+ pmap.getGlobalOffset().x
 											+ (float) marker.getOffset().x
-											- (drawable.getMinimumWidth()/2)*density, 
+											- (drawable.getMinimumWidth()/2), 
 											(j - 2) * TILE_SIZE + pmap.getGlobalOffset().y
 											+ (float) marker.getOffset().y
-											- (drawable.getMinimumHeight()/2)*density, paint);
+											- (drawable.getMinimumHeight()/2), paint);
 								} else {
 									cs.drawBitmap(marker.getMarkerImage().getImage(),
 											(i - 2) * TILE_SIZE	+ pmap.getGlobalOffset().x
