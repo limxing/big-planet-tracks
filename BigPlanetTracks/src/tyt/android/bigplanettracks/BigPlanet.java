@@ -96,6 +96,7 @@ public class BigPlanet extends Activity {
 	private Toast textMessage;
 	public String identifier = null;
 	public static float density;
+	public static float mapScale = 2f;
 
 	private MapControl mapControl;
 
@@ -694,6 +695,7 @@ public class BigPlanet extends Activity {
 		
 		// More menu
 		sub = menu.addSubMenu(4, 4, 0, R.string.TOOLS_MENU).setIcon(R.drawable.tools);
+//		sub.clearHeader();
 		sub.add(4, 41, 0, R.string.NETWORK_MODE_MENU);
 		sub.add(4, 42, 1, R.string.CACHE_MAP_MENU);
 		sub.add(4, 43, 2, R.string.MAP_SOURCE_MENU);
@@ -1576,7 +1578,7 @@ public class BigPlanet extends Activity {
 		if (scaledBitmap == null) {
 			int width = bmp.getWidth();
 			int height = bmp.getHeight();
-			double scale = 1/density;
+			double scale = 1/density*mapScale;
 			int scaleWidth = (int)(width*scale);
 			int scaleHeight = (int)(height*scale);
 //			System.out.println(width+"*"+height);

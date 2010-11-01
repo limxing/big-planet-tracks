@@ -509,6 +509,7 @@ public class MapControl extends RelativeLayout {
 		Matrix matr = new Matrix();
 //		matr.postScale((float) pmap.scaleFactor, (float) pmap.scaleFactor, scalePoint.x, scalePoint.y);
 //		c.drawColor(BitmapUtils.BACKGROUND_COLOR);
+		matr.postScale(BigPlanet.mapScale, BigPlanet.mapScale, scalePoint.x, scalePoint.y);
 		c.drawBitmap(cb, matr, paint);
 	}
 
@@ -640,15 +641,23 @@ public class MapControl extends RelativeLayout {
 				pmap.inMove = false;
 //				touchTime = System.currentTimeMillis();
 //				System.out.println("touchTime " + touchTime);
-				pmap.getNextMovePoint().set((int) event.getX(), (int) event.getY());
+				pmap.getNextMovePoint().set(
+						getRealPoint(event.getX(), scalePoint.x),
+						getRealPoint(event.getY(), scalePoint.y));
+//				pmap.getNextMovePoint().set((int) event.getX(), (int) event.getY());
+//				System.out.println("ACTION_DOWN " + pmap.getNextMovePoint());
 				break;
 			case MotionEvent.ACTION_MOVE:
 				long now = System.currentTimeMillis();
 				long diff = now - touchTime;
-				if (pmap.scaleFactor == 1){
+				if (pmap.scaleFactor == 1) {
 //					System.out.println("inmove " + pmap.inMove);
 					pmap.inMove = true;
-					pmap.moveCoordinates(event.getX(), event.getY());
+					pmap.moveCoordinates(
+							getRealPoint(event.getX(), scalePoint.x),
+							getRealPoint(event.getY(), scalePoint.y));
+//					pmap.moveCoordinates(event.getX(), event.getY());
+//					System.out.println("ACTION_MOVE " + pmap.getNextMovePoint());
 				}
 				// for Auto-Follow
 				BigPlanet.disabledAutoFollow(MapControl.this.context);
@@ -656,7 +665,10 @@ public class MapControl extends RelativeLayout {
 					touchTime = now;
 //					System.out.println("diff " + diff);
 					pmap.inMove = false;
-					pmap.moveCoordinates(event.getX(), event.getY());
+					pmap.moveCoordinates(
+							getRealPoint(event.getX(), scalePoint.x),
+							getRealPoint(event.getY(), scalePoint.y));
+//					pmap.moveCoordinates(event.getX(), event.getY());
 					pmap.quickHack();
 					pmap.loadFromCache();
 					updateScreen();
@@ -676,7 +688,11 @@ public class MapControl extends RelativeLayout {
 				} else { // not double-tap
 					if (pmap.inMove) {
 						pmap.inMove = false;
-						pmap.moveCoordinates(event.getX(), event.getY());
+						pmap.moveCoordinates(
+								getRealPoint(event.getX(), scalePoint.x),
+								getRealPoint(event.getY(), scalePoint.y));
+//						pmap.moveCoordinates(event.getX(), event.getY());
+//						System.out.println("ACTION_UP " + pmap.getNextMovePoint());
 						pmap.quickHack();
 						pmap.loadFromCache();
 						updateScreen();
@@ -687,6 +703,11 @@ public class MapControl extends RelativeLayout {
 			}
 
 			return true;
+		}
+		
+		private int getRealPoint(float eventPointX, int scalePointX) {
+			float realPointX = (eventPointX-scalePointX)/BigPlanet.mapScale + scalePointX;
+			return (int) realPointX;
 		}
 	}
 
