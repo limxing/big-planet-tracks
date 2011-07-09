@@ -887,8 +887,11 @@ public class BigPlanet extends Activity {
 			gpsLocationListener.registerSensor(this);
 			// LocationManager.GPS_PROVIDER = "gps"
 			provider = LocationManager.GPS_PROVIDER;
-			locationManager.requestLocationUpdates(provider, minTime, minDistance, gpsLocationListener);
-			Log.i("Location", provider +" requestLocationUpdates() "+ minTime +" "+ minDistance);
+			try {
+				locationManager.requestLocationUpdates(provider, minTime, minDistance, gpsLocationListener);
+				Log.i("Location", provider +" requestLocationUpdates() "+ minTime +" "+ minDistance);
+			} catch (RuntimeException e) {
+			}
 		}
 
 		/* NETWORK_PROVIDER */
@@ -897,8 +900,11 @@ public class BigPlanet extends Activity {
 			networkLocationListener.registerSensor(this);
 			// LocationManager.NETWORK_PROVIDER = "network"
 			provider = LocationManager.NETWORK_PROVIDER;
-			locationManager.requestLocationUpdates(provider, minTime, minDistance, networkLocationListener);
-			Log.i("Location", provider +" requestLocationUpdates() "+ minTime +" "+ minDistance);
+			try {
+				locationManager.requestLocationUpdates(provider, minTime, minDistance, networkLocationListener);
+				Log.i("Location", provider +" requestLocationUpdates() "+ minTime +" "+ minDistance);
+			} catch (RuntimeException e) {
+			}
 		}
 	}
 	

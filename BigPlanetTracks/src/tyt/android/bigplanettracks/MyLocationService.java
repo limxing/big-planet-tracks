@@ -190,8 +190,11 @@ public class MyLocationService extends Service implements LocationListener, Sens
 		Log.i("Location", provider + " is disabled.");
 		if (provider.equals("gps")) {
 			String networkProvider = LocationManager.NETWORK_PROVIDER;
-			BigPlanet.locationManager.requestLocationUpdates(networkProvider, minTime, minDistance, BigPlanet.networkLocationListener);
-			Log.i("Location", networkProvider +" requestLocationUpdates() "+ minTime +" "+ minDistance);
+			try {
+				BigPlanet.locationManager.requestLocationUpdates(networkProvider, minTime, minDistance, BigPlanet.networkLocationListener);
+				Log.i("Location", networkProvider +" requestLocationUpdates() "+ minTime +" "+ minDistance);
+			} catch (RuntimeException e) {
+			}
 		}
 	}
 	
@@ -199,9 +202,15 @@ public class MyLocationService extends Service implements LocationListener, Sens
 	public void onProviderEnabled(String provider) {
 		Log.i("Location", provider + " is enabled.");
 		if (provider.equals("gps")) {
-			BigPlanet.locationManager.requestLocationUpdates(provider, minTime, minDistance, BigPlanet.gpsLocationListener);
+			try {
+				BigPlanet.locationManager.requestLocationUpdates(provider, minTime, minDistance, BigPlanet.gpsLocationListener);
+			} catch (RuntimeException e) {
+			}
 		} else {
-			BigPlanet.locationManager.requestLocationUpdates(provider, minTime, minDistance, BigPlanet.networkLocationListener);
+			try {
+				BigPlanet.locationManager.requestLocationUpdates(provider, minTime, minDistance, BigPlanet.networkLocationListener);
+			} catch (RuntimeException e) {
+			}
 		}
 		Log.i("Location", provider +" requestLocationUpdates() "+ minTime +" "+ minDistance);
 	}
@@ -217,8 +226,11 @@ public class MyLocationService extends Service implements LocationListener, Sens
 			// invoke network's requestLocationUpdates() if not tracking
 			if (provider.equals("gps") && !BigPlanet.isGPSTracking) {
 				String networkProvider = LocationManager.NETWORK_PROVIDER;
-				BigPlanet.locationManager.requestLocationUpdates(networkProvider, minTime, minDistance, BigPlanet.networkLocationListener);
-				Log.i("Location", networkProvider +" requestLocationUpdates() "+ minTime +" "+ minDistance);
+				try {
+					BigPlanet.locationManager.requestLocationUpdates(networkProvider, minTime, minDistance, BigPlanet.networkLocationListener);
+					Log.i("Location", networkProvider +" requestLocationUpdates() "+ minTime +" "+ minDistance);
+				} catch (RuntimeException e) {
+				}
 			}
 		} else {
 			Log.i("Location", provider + " is AVAILABLE");
