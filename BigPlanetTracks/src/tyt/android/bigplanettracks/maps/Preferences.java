@@ -37,6 +37,8 @@ public class Preferences {
 
 	public static final String NETWORK_MODE = "NETWORK_MODE";
 
+	public static final String POST_MAP_ZOOM = "POST_MAP_ZOOM";
+
 	public static final String GPS_OFFSET_X = "GPS_OffsetX";
 	public static final String GPS_OFFSET_Y = "GPS_OffsetY";
 
@@ -130,6 +132,15 @@ public class Preferences {
 	public static boolean getUseNet() {
 		boolean useNet = prefs.getBoolean(Preferences.USE_NET, true);
 		return useNet;
+	}
+
+	public static void putPostMapZoom(int postMapZoom) {
+		put(Preferences.POST_MAP_ZOOM, postMapZoom);
+	}
+
+	public static int getPostMapZoom() {
+		int postMapZoom = prefs.getInt(Preferences.POST_MAP_ZOOM, 1);
+		return postMapZoom;
 	}
 
 	private static void put(String name, Object value){

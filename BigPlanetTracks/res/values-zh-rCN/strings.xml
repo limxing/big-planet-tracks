@@ -40,6 +40,7 @@
     <string name="TOOLS_MENU">更多</string>
     <string name="CACHE_MAP_MENU">储存地图供离线使用</string>
     <string name="NETWORK_MODE_MENU">网路模式</string>
+    <string name="POST_MAP_ZOOM_MENU">地图放大等级</string>
     <string name="BOOKMARKS_MENU">书签</string>
     <string name="BOOKMARK_ADD_MENU">新增</string>
     <string name="BOOKMARKS_VIEW_MENU">检视</string>

@@ -40,6 +40,7 @@
     <string name="TOOLS_MENU">更多</string>
     <string name="CACHE_MAP_MENU">儲存地圖供離線使用</string>
     <string name="NETWORK_MODE_MENU">網路模式</string>
+    <string name="POST_MAP_ZOOM_MENU">地圖放大等級</string>
     <string name="BOOKMARKS_MENU">書籤</string>
     <string name="BOOKMARK_ADD_MENU">新增</string>
     <string name="BOOKMARKS_VIEW_MENU">檢視</string>

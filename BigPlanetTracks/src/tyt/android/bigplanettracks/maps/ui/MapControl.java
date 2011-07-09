@@ -509,7 +509,7 @@ public class MapControl extends RelativeLayout {
 		Matrix matr = new Matrix();
 //		matr.postScale((float) pmap.scaleFactor, (float) pmap.scaleFactor, scalePoint.x, scalePoint.y);
 //		c.drawColor(BitmapUtils.BACKGROUND_COLOR);
-		matr.postScale(BigPlanet.mapScale, BigPlanet.mapScale, scalePoint.x, scalePoint.y);
+		matr.postScale(BigPlanet.postMapZoom, BigPlanet.postMapZoom, scalePoint.x, scalePoint.y);
 		c.drawBitmap(cb, matr, paint);
 	}
 
@@ -706,7 +706,7 @@ public class MapControl extends RelativeLayout {
 		}
 		
 		private int getRealPoint(float eventPointX, int scalePointX) {
-			float realPointX = (eventPointX-scalePointX)/BigPlanet.mapScale + scalePointX;
+			float realPointX = (eventPointX-scalePointX)/BigPlanet.postMapZoom + scalePointX;
 			return (int) realPointX;
 		}
 	}
