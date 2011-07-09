@@ -173,7 +173,7 @@ public class MyLocationService extends Service implements LocationListener, Sens
 				moveMarker(location);
 			}
 		} else { // isGPSTracking = true
-			if ((location.hasAccuracy() && location.getAccuracy()<30) || !location.hasAccuracy()) {
+			if ((location.hasAccuracy() && location.getAccuracy()<50) || !location.hasAccuracy()) {
 				if (BigPlanet.isFollowMode) {
 					//trackMyLocation(location, PhysicMap.getZoomLevel());
 					Message m = locationHandler.obtainMessage(BigPlanet.MethodTrackMyLocation, 0, 0, location);
