@@ -30,6 +30,7 @@
     <string name="auto_follow_disabled">解除自動跟隨功能</string>
     <string name="auto_follow_enabled">開啟自動跟隨功能</string>
     <string name="track_enabled">開始記錄軌跡</string>
+    <string name="start_tracking">開始記錄軌跡 ?</string>
     <string name="finish_tracking">結束記錄軌跡 ?</string>
     <string name="MY_LOCATION_MENU">我的位置</string>
     <string name="SEARCH_MENU">搜尋</string>

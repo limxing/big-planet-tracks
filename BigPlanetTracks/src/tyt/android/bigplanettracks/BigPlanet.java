@@ -368,19 +368,24 @@ public class BigPlanet extends Activity {
 
 	private void toggleTrackButton() {
 		if (!isGPSTracking) {
-			isGPSTracking = true;
-			ivRecordTrack.setImageResource(R.drawable.btn_record_stop);
-			enabledTrack(BigPlanet.this);
-			currentLocationBeforeRecording = currentLocation;
-			recordingTime = System.currentTimeMillis();
-			// log track by using gpsLocationListener
-			if (locationManager != null) {
-				if (networkLocationListener != null) {
-					locationManager.removeUpdates(networkLocationListener);
-					BigPlanet.locationProvider = "gps 1 0";
-					setActivityTitle(BigPlanet.this);
-				}
-			}
+			// a dialog to make sure that user wants to start recording
+			new AlertDialog.Builder(BigPlanet.this).setTitle(R.string.start_tracking)
+			.setPositiveButton(
+					R.string.YES_LABEL,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							startTracking();
+						}
+					})
+			.setNeutralButton(
+					R.string.NO_LABEL,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+						}
+					})
+			.show();
 		} else {
 			if (MarkerManager.getLocationList(MarkerManager.markersG).size()>1) {
 				// a dialog to make sure that user wants to finish recording
@@ -403,6 +408,22 @@ public class BigPlanet extends Activity {
 				.show();
 			} else {
 				finishTracking();
+			}
+		}
+	}
+	
+	private void startTracking() {
+		isGPSTracking = true;
+		ivRecordTrack.setImageResource(R.drawable.btn_record_stop);
+		enabledTrack(BigPlanet.this);
+		currentLocationBeforeRecording = currentLocation;
+		recordingTime = System.currentTimeMillis();
+		// log track by using gpsLocationListener
+		if (locationManager != null) {
+			if (networkLocationListener != null) {
+				locationManager.removeUpdates(networkLocationListener);
+				BigPlanet.locationProvider = "gps 1 0";
+				setActivityTitle(BigPlanet.this);
 			}
 		}
 	}
