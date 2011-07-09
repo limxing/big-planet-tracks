@@ -12,9 +12,6 @@
     
     <string name="app_name">Big Planet Tracks</string>
     
-    <string name="EDIT_MENU">Edit</string>
-    <string name="DELETE_MENU">Delete</string>
-    
     <string name="YES_LABEL">Yes</string>
     <string name="NO_LABEL">No</string>
     <string name="OK_LABEL">OK</string>
@@ -26,6 +23,11 @@
     
     <string name="REMOVE_BOOKMARK_TITLE">Remove bookmark</string>
     <string name="REMOVE_BOOKMARK_MESSAGE">Are you sure?</string>
+	<string-array name="bookmark_items_dialog">
+		<item>View</item>
+		<item>Edit</item>
+		<item>Delete</item>
+	</string-array>
     
     <string name="auto_follow_disabled">Auto-Follow Disabled</string>
     <string name="auto_follow_enabled">Auto-Follow Enabled</string>

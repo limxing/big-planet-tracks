@@ -6,18 +6,16 @@ import tyt.android.bigplanettracks.maps.db.DAO;
 import tyt.android.bigplanettracks.maps.db.GeoBookmark;
 import tyt.android.bigplanettracks.maps.ui.AddBookmarkDialog;
 import tyt.android.bigplanettracks.maps.ui.OnDialogClickListener;
-
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -50,71 +48,66 @@ public class AllGeoBookmarks extends ListActivity {
 			}
 			
 		});
-	}
+		getListView().setOnItemClickListener(new OnItemClickListener(){
 
-	/**
-	 * Создает элементы меню
-	 */
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		menu.add(0, 0, 0, R.string.EDIT_MENU).setIcon(R.drawable.edit);
-		menu.add(0, 1, 0, R.string.DELETE_MENU).setIcon(R.drawable.delete);
-		return true;
-	}
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				final int bookmarkId = position;
+				new AlertDialog.Builder(AllGeoBookmarks.this)
+				.setTitle(getString(R.string.BOOKMARKS_MENU))
+				.setItems(R.array.bookmark_items_dialog,
+				new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						switch (which)
+						{	
+						case 0: // view
+							Intent intent = new Intent();
+							intent.putExtra(BOOKMARK_DATA, geoBookmarks.get(bookmarkId));
+							setResult(RESULT_OK,intent);
+							finish();
+							break;
 
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		boolean isSelected = this.getSelectedItemId() >= 0;
-		menu.findItem(0).setEnabled(isSelected);
-		menu.findItem(1).setEnabled(isSelected);
-		return true;
-	}
+						case 1: // edit
+							AddBookmarkDialog.show(AllGeoBookmarks.this, 
+									geoBookmarks.get(bookmarkId), new OnDialogClickListener() {
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		final int bookmarkId = (int) this.getSelectedItemId();
+								@Override
+								public void onCancelClick() {
+								}
 
-		switch (item.getItemId()) {
-		case 0: // edit
-
-			AddBookmarkDialog.show(AllGeoBookmarks.this, 
-					geoBookmarks.get(bookmarkId), new OnDialogClickListener() {
-
-				@Override
-				public void onCancelClick() {
-
-				}
-
-				@Override
-				public void onOkClick(Object obj) {
-					GeoBookmark geoBookmark = (GeoBookmark) obj;
-					DAO d = new DAO(AllGeoBookmarks.this);
-					d.saveGeoBookmark(geoBookmark);
-					setData();
-				}
-			});
-
-			break;
-
-		case 1: // delete
-			new AlertDialog.Builder(this).setTitle(R.string.REMOVE_BOOKMARK_TITLE)
-					.setMessage(R.string.REMOVE_BOOKMARK_MESSAGE)
-					.setPositiveButton(R.string.YES_LABEL,
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int whichButton) {
-									DAO dao = new DAO(AllGeoBookmarks.this);
-									dao.removeGeoBookmark(geoBookmarks.get(bookmarkId).getId());
+								@Override
+								public void onOkClick(Object obj) {
+									GeoBookmark geoBookmark = (GeoBookmark) obj;
+									DAO d = new DAO(AllGeoBookmarks.this);
+									d.saveGeoBookmark(geoBookmark);
 									setData();
 								}
-							}).setNegativeButton(R.string.NO_LABEL, null).show();
-			break;
-		default:
-			break;
-		}
+							});
+							break;
 
-		return true;
+						case 2: // delete
+							new AlertDialog.Builder(AllGeoBookmarks.this).setTitle(R.string.REMOVE_BOOKMARK_TITLE)
+									.setMessage(R.string.REMOVE_BOOKMARK_MESSAGE)
+									.setPositiveButton(R.string.YES_LABEL,
+											new DialogInterface.OnClickListener() {
+												public void onClick(DialogInterface dialog,
+														int whichButton) {
+													DAO dao = new DAO(AllGeoBookmarks.this);
+													dao.removeGeoBookmark(geoBookmarks.get(bookmarkId).getId());
+													setData();
+												}
+											})
+									.setNegativeButton(R.string.NO_LABEL, null).show();
+							break;
+						}	
+					}
+				}).show();
+			}
+			
+		});
 	}
 
 	private class GeoBookmarkListAdapter extends BaseAdapter {
