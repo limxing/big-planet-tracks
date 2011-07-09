@@ -42,7 +42,7 @@
     <string name="TOOLS_MENU">More</string>
     <string name="CACHE_MAP_MENU">Save map for offline use</string>
     <string name="NETWORK_MODE_MENU">Network mode</string>
-    <string name="POST_MAP_ZOOM_MENU">Map zoom level</string>
+    <string name="MAP_MAGNIFICATION_MENU">Map magnification</string>
     <string name="BOOKMARKS_MENU">Bookmarks</string>
     <string name="BOOKMARK_ADD_MENU">Add</string>
     <string name="BOOKMARKS_VIEW_MENU">View</string>

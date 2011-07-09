@@ -96,8 +96,8 @@ public class BigPlanet extends Activity {
 	private Toast textMessage;
 	public String identifier = null;
 	public static float density;
-	public static float postMapZoom = 1f;
-	private static boolean isPostMapZoomChanged;
+	public static float mapMagnification = 1f;
+	private static boolean isMapMagnificationChanged;
 
 	private MapControl mapControl;
 
@@ -722,7 +722,7 @@ public class BigPlanet extends Activity {
 		sub.add(4, 42, 1, R.string.CACHE_MAP_MENU);
 		sub.add(4, 43, 2, R.string.MAP_SOURCE_MENU);
 		sub.add(4, 44, 3, R.string.GPS_OFFSET_MENU);
-		sub.add(4, 45, 4, R.string.POST_MAP_ZOOM_MENU);
+		sub.add(4, 45, 4, R.string.MAP_MAGNIFICATION_MENU);
 		sub.add(4, 49, 10, R.string.ABOUT_MENU);
 
 		boolean useNet = Preferences.getUseNet();
@@ -767,7 +767,7 @@ public class BigPlanet extends Activity {
 			selectGPSOffset();
 			break;
 		case 45:
-			selectPostMapZoom();
+			selectMapMagnification();
 			break;
 		case 49:
 			showAbout();
@@ -1264,14 +1264,14 @@ public class BigPlanet extends Activity {
 	}
 
 	/**
-	 * Creates a dialog to select the map zoom levels after drawing
+	 * Creates a dialog to select the map magnification
 	 */
-	private void selectPostMapZoom() {
-		final Dialog mapZoomDialog;
-		mapZoomDialog = new Dialog(this);
-		mapZoomDialog.setCanceledOnTouchOutside(true);
-		mapZoomDialog.setCancelable(true);
-		mapZoomDialog.setTitle(R.string.POST_MAP_ZOOM_MENU);
+	private void selectMapMagnification() {
+		final Dialog mapMagnificationDialog;
+		mapMagnificationDialog = new Dialog(this);
+		mapMagnificationDialog.setCanceledOnTouchOutside(true);
+		mapMagnificationDialog.setCancelable(true);
+		mapMagnificationDialog.setTitle(R.string.MAP_MAGNIFICATION_MENU);
 		
 		final LinearLayout mainPanel = new LinearLayout(this);
 		mainPanel.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
@@ -1284,30 +1284,30 @@ public class BigPlanet extends Activity {
 				RadioGroup.LayoutParams.WRAP_CONTENT,
 				RadioGroup.LayoutParams.WRAP_CONTENT);
 
-		final CharSequence[] arrayPostMapZoom = getResources().getTextArray(R.array.PostMapZoom);
-		for (int i = arrayPostMapZoom.length-1; i >= 0; i--) {
-			levelsRadioGroup.addView(buildRadioButton(arrayPostMapZoom[i].toString(), i), 0, layoutParams);
+		final CharSequence[] arrayMapMagnification = getResources().getTextArray(R.array.MapMagnification);
+		for (int i = arrayMapMagnification.length-1; i >= 0; i--) {
+			levelsRadioGroup.addView(buildRadioButton(arrayMapMagnification[i].toString(), i), 0, layoutParams);
 		}
 
-		int postMapZoom = Preferences.getPostMapZoom();
-		levelsRadioGroup.check(postMapZoom);
+		int mapMagnificationIndex = Preferences.getMapMagnificationIndex();
+		levelsRadioGroup.check(mapMagnificationIndex);
 
 		levelsRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 					public void onCheckedChanged(RadioGroup group, int checkedId) {
-						int postMapZoom = checkedId;
-						Preferences.putPostMapZoom(postMapZoom);
-						BigPlanet.postMapZoom = Float.parseFloat(arrayPostMapZoom[checkedId].toString());
-						isPostMapZoomChanged = true;
+						int mapMagnificationIndex = checkedId;
+						Preferences.putMapMagnificationIndex(mapMagnificationIndex);
+						BigPlanet.mapMagnification = Float.parseFloat(arrayMapMagnification[mapMagnificationIndex].toString());
+						isMapMagnificationChanged = true;
 						mapControl.invalidate();
 						setActivityTitle(BigPlanet.this);
-						isPostMapZoomChanged = false;
-						mapZoomDialog.dismiss();
+						isMapMagnificationChanged = false;
+						mapMagnificationDialog.dismiss();
 					}
 				});
 
 		mainPanel.addView(levelsRadioGroup);
-		mapZoomDialog.setContentView(mainPanel);
-		mapZoomDialog.show();
+		mapMagnificationDialog.setContentView(mainPanel);
+		mapMagnificationDialog.show();
 	}
 
 	/**
@@ -1654,10 +1654,10 @@ public class BigPlanet extends Activity {
 	private static int scaledBitmapZoomLevel = -9;
 	
 	private static Bitmap getScaledBitmap(Bitmap bmp) {
-		if (scaledBitmap == null || isPostMapZoomChanged) {
+		if (scaledBitmap == null || isMapMagnificationChanged) {
 			int width = bmp.getWidth();
 			int height = bmp.getHeight();
-			double scale = 1/density*postMapZoom;
+			double scale = 1/density*mapMagnification;
 			int scaleWidth = (int)(width*scale);
 			int scaleHeight = (int)(height*scale);
 //			System.out.println(width+"*"+height);
